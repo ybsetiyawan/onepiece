@@ -1,0 +1,47 @@
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
+const morgan = require('morgan');
+const db = require('./queries');
+const app = express();
+app.use(morgan('tiny'));
+app.use(cors());
+app.use(bodyParser.json());
+app.get('/', (req, res) => {
+    res.json({ 
+        message: 'Hello World' 
+    });
+});
+
+// m_cabang
+app.get('/m_cabang', db.getCabang);
+app.post('/m_cabang', db.addCabang);
+app.put('/m_cabang/:id', db.editCabang);
+app.delete('/m_cabang/:id', db.deleteCabang);
+
+// m_role
+app.get('/m_role', db.getRole);
+app.post('/m_role', db.addRole);
+app.put('/m_role/:id', db.editRole);
+app.delete('/m_role/:id', db.deleteRole);
+
+// m_user
+app.get('/m_user', db.getUser);
+app.post('/m_user', db.addUser);
+app.put('/m_user/:id', db.editUser);
+app.delete('/m_user/:id', db.deleteUser);
+
+// login
+app.post('/login', db.login);
+
+
+
+
+
+
+
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
+});
