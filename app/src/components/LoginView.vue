@@ -61,7 +61,7 @@ export default {
             kode_cabang: this.loginDetail.data.kode_cabang
           });
           Swal.fire({
-            position: 'top-right',
+            position: 'top',
             icon: 'success',
             title: 'Login berhasil!',
             showConfirmButton: false,
@@ -83,7 +83,7 @@ export default {
             message = 'Login gagal: ' + error.response.data.message;
           }
           Swal.fire({
-            position: 'top-right',
+            position: 'top',
             icon: 'error',
             showConfirmButton: false,
             timer: 1500,

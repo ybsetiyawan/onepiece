@@ -4,7 +4,7 @@
     <!-- -->
     <v-list dense>
         <v-list-item
-          v-for="item in items"
+          v-for="item in filteredItems"
           :key="item.title"
           :to="item.link"
           link
@@ -207,6 +207,18 @@ export default {
     },
     kode_cabang() {
       return this.getUserData.kode_cabang;
+    },
+    id_role() {
+      return this.getUserData.id_role; // Ambil id_role dari store
+    },
+    filteredItems() {
+      // Filter items berdasarkan id_role
+      return this.items.filter(item => {
+        if (item.title === 'Master') {
+          return item.title === 'Master' && this.id_role == 4;
+        }
+        return true; // Tampilkan item lainnya  
+      });
     }
   },
   data: () => ({
@@ -220,12 +232,15 @@ export default {
         title: 'Master',
         icon: 'mdi-database',
         subItems: [
-          { title: 'Branch', icon: 'mdi-source-branch',   link: '/branch' },
+          { title: 'Branch', icon: 'mdi-store-outline',   link: '/branch' },
           { title: 'User', icon: 'mdi-account', link: '/user' },
+          { title: 'Unit', icon: 'mdi-cube-send', link: '/unit' },
+          { title: 'Item Type', icon: 'mdi-bookshelf', link: '/itemtype' },
           { title: 'Item', icon: 'mdi-basket', link: '/item' },
           { title: 'Ship', icon: 'mdi-ferry', link: '/ship' },
         ]
       },
+      { title: 'Transaction', icon: 'mdi-file-document', link: '/transaction' },
     ],
   }
 ), 

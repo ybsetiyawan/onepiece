@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import LoginView from '../components/LoginView.vue'
 import BranchV  from '../components/master/BranchV.vue'
+import UserV  from '../components/master/UserV.vue'
 import store from '../store'
 Vue.use(VueRouter)
 
@@ -29,7 +30,18 @@ const routes = [
     path: '/branch',
     name: 'branch',
     component: BranchV
+  },
+  {
+    path: '/user',
+    name: 'user',
+    component: UserV
+  },
+  {
+    path: '/unit',
+    name: 'unit',
+    component: UserV
   }
+  
 ]
 
 const router = new VueRouter({

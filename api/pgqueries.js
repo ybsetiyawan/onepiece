@@ -5,12 +5,14 @@ const getUser = `SELECT
 	  u.nama,
 	  u.id_role,
       u.id_cabang,
+	  r.kode AS kode_role,
 	  c.kode AS kode_cabang,
 	  c.nama AS nama_cabang,
 	  c.alamat AS alamat_cabang
 FROM
 	  m_user u
 JOIN m_cabang c ON u.id_cabang = c.id
+JOIN m_role r ON u.id_role = r.id
 ORDER BY
 	u.id ASC;
 `;

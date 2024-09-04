@@ -9,6 +9,93 @@ const pool = new Pool({
     port: 5432,
 });
 
+const getSatuan = (request, response) => {
+    pool.query('SELECT * FROM m_satuan ORDER BY nama ASC', (error, results) =>{
+        if (error){
+            throw error
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
+const addSatuan = (request, response) => {
+    const {nama} = request.body
+    pool.query('INSERT INTO m_satuan (nama) VALUES ($1)', [nama], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(201).send('Data berhasil ditambahkan')
+    })
+}
+
+const editSatuan = (request, response) => {
+    const id = request.params.id;
+    const {nama} = request.body
+    pool.query('UPDATE m_satuan SET nama = $1 WHERE id = $2', [nama, id], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(200).send('Data berhasil diubah')
+     })
+    }
+
+const deleteSatuan = (request, response) => {
+    const id = request.params.id
+    pool.query('DELETE FROM m_satuan WHERE id = $1', [id], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(200).send('Data berhasil dihapus')
+    })
+}
+
+const getJenisItem = (request, response) => {
+    pool.query('SELECT * FROM m_jenis_item ORDER BY nama ASC', (error, results) =>{
+        if (error){
+            throw error
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
+const addJenisItem = (request, response) => {
+    const {nama} = request.body
+    pool.query('INSERT INTO m_jenis_item (nama) VALUES ($1)', [nama], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(201).send('Data berhasil ditambahkan')
+    })
+}
+
+const editJenisItem = (request, response) => {
+    const id = request.params.id;
+    const {nama} = request.body
+    pool.query('UPDATE m_jenis_item SET nama = $1 WHERE id = $2', [nama, id], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(200).send('Data berhasil diubah')
+     })
+    }
+
+const deleteJenisItem = (request, response) => {
+    const id = request.params.id
+    pool.query('DELETE FROM m_jenis_item WHERE id = $1', [id], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(200).send('Data berhasil dihapus')
+    })
+}
+
+
 const getCabang = (request, response) => {
     pool.query('SELECT * FROM m_cabang ORDER BY kode ASC', (error, results) =>{
         if (error){
@@ -105,8 +192,8 @@ const getUser = (request, response) => {
     }
 
 const addUser = (request, response) => {
-    const {username, password, id_role, id_cabang} = request.body
-    pool.query('INSERT INTO m_user (username, password, id_role, id_cabang) VALUES ($1, $2, $3, $4)', [username, password, id_role, id_cabang], (error, results) => {
+    const {username, password, id_role, id_cabang, nama} = request.body
+    pool.query('INSERT INTO m_user (username, password, id_role, id_cabang, nama) VALUES ($1, $2, $3, $4, $5)', [username, password, id_role, id_cabang, nama], (error, results) => {
         if (error){
             console.log(error);
             response.status(500).send('Internal Server Error');
@@ -184,5 +271,7 @@ module.exports = {
     getCabang, addCabang, editCabang, deleteCabang,
     getRole, addRole, editRole, deleteRole,
     getUser, addUser, editUser, deleteUser,
+    getSatuan, addSatuan, editSatuan, deleteSatuan,
+    getJenisItem, addJenisItem, editJenisItem, deleteJenisItem,
     login
 }

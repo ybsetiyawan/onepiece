@@ -10,5 +10,6 @@ export default {
         validateInputs(obj, keys) { // Metode baru untuk memvalidasi input
             return keys.some(key => !obj[key]);
         },
+       
     },
 };

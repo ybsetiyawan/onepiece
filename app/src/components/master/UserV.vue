@@ -2,14 +2,14 @@
   <div>
       <v-card>
           <v-card-title>
-              <h4>Data Branch</h4>
+              <h4>Data User</h4>
               <v-spacer></v-spacer>
-              <v-btn color="primary" dark @click="addCabang">Add Branch</v-btn>
+              <v-btn color="primary" dark @click="addUser">Add User</v-btn>
           </v-card-title>
           <v-card-text>
               <v-data-table
                   :headers="headers"
-                  :items="cabang"
+                  :items="user"
                   :search="search"
                   @click:row="handleRowClick"
               />
@@ -27,7 +27,7 @@
         <template v-slot:default="dialog">
           <v-card>
             <v-toolbar color="#78909C" dark >
-              {{ isAdd ? 'Add Branch' : 'Edit Branch' }}
+              {{ isAdd ? 'Add User' : 'Edit User' }}
             </v-toolbar>
             <v-form>
               <v-card-text>
@@ -35,8 +35,8 @@
                   <v-col cols="6">
                     <v-text-field
                     
-                    label="Kode"
-                    v-model="editCabang.kode"
+                    label="Username"
+                    v-model="editUser.username"
                     required
                     type="text"
                     :disabled="!isAdd"
@@ -46,7 +46,7 @@
                   <v-col cols="6">
                     <v-text-field
                     label="Nama"
-                    v-model="editCabang.nama"
+                    v-model="editUser.nama"
                     required
                     type="text"
                     >
@@ -54,21 +54,36 @@
                   </v-col>
                   <v-col cols="12">
                     <v-text-field
-                    label="Alamat"
-                    v-model="editCabang.alamat"
+                    label="Password"
+                    v-model="editUser.password"
                     required
                     type="text"
                   >
                   </v-text-field>
                   </v-col>
                   <v-col cols="12">
-                    <v-text-field
-                    label="Telp"
-                    v-model="editCabang.telp"
+                    <v-select
+                    label="Role"
+                    v-model="editUser.kode_role"
+                    :items="roles"
+                    item-text="kode"
+                    item-value="id"
                     required
                     type="text"
-                  >
-                  </v-text-field>
+                   >
+                    </v-select>
+                  </v-col>
+                  <v-col cols="12">
+                    <v-select
+                    label="Cabang"
+                    v-model="editUser.nama_cabang"
+                    :items="cabang"
+                    item-text="nama"
+                    item-value="id"
+                    required
+                    type="text"
+                   >
+                    </v-select>
                   </v-col>
                 </v-row>
               </v-card-text>
@@ -77,7 +92,7 @@
             <v-card-actions class="justify-center">
               <v-btn
                 text
-                @click="isAdd ? saveCabang() : updateCabang()"
+                @click="isAdd ? saveUser() : updateUser()"
                 color="success"
                 outlined
               >
@@ -107,53 +122,74 @@ import mixins from '@/mixins/mixins';
 export default {
   mixins: [mixins], // Menambahkan mixin ke dalam komponen
   computed: {
-        ...mapGetters(['getCabangData','getUserData']), // Menghubungkan getter cabang dari Vuex
-        userData() {
-          return this.getUserData; // Mengambil data user dari store
-        }
+        ...mapGetters(['getUsersData','getCabangData']), // Pastikan getter didefinisikan dengan benar
+       
     },
     data() {
         return {
             headers: [
-                { text: 'Kode', value: 'kode' },
-                { text: 'Nama', value: 'nama' },
-                { text: 'Alamat', value: 'alamat'},
-                { text: 'Telp', value: 'telp'},
-                
+                { text: 'Username', value: 'username' },
+                { text: 'Nama', value: 'nama'},
+                { text: 'Password', value: 'password' },
+                { text: 'Role', value: 'kode_role'},
+                { text: 'Cabang', value: 'nama_cabang'},
+                { text: 'Alamat', value: 'alamat_cabang'},
             ],
+            user: [], // Pastikan ini diinisialisasi
             cabang: [],
             search: '',
             dialog:{
                 value: false
             },
-            editCabang: {},
+            editUser: {},
             isAdd: false,
+              
         }
     },
     methods: {
-        ...mapActions(['getCabang']),
-        async fetchBranches() {
-            await this.getCabang(); // Pastikan data diambil sebelum diassign
-            this.cabang = this.getCabangData; // Mengambil data cabang dari getter
+        ...mapActions(['getUsers','getCabang']), // Pastikan action didefinisikan dengan benar
+          async fetchUsers() {
+            await this.getUsers(); // Memanggil action getUsers untuk mengambil data pengguna
+            // console.log('User Data from Getter:', this.getUsersData); // Log data pengguna dari getter
+            this.user = this.getUsersData; // Mengambil data pengguna dari getter
         },
+        async fetchRoles() {
+          try {
+            const response = await api.get('/m_role');
+            this.roles = response.data;
+            // console.log('Role Data:', this.roles);
+          } catch (error) {
+            console.error('Error fetching roles:', error);
+          }
+        },
+        async fetchBranches() {
+          await this.getCabang();
+          this.cabang = this.getCabangData;
+          // console.log(this.cabang);
+        },  
+        
         handleRowClick(item) {              
             this.dialog.value = true; // Menampilkan dialog saat baris diklik
-            this.editCabang = { ...item }; // Mengisi data untuk diedit
+            this.editUser = { ...item }; // Mengisi data untuk diedit
             // console.log('Row clicked:', item); // Ganti dengan logika yang diinginkan
+            // this.editUser.kode_role = item.kode_role;
+            // this.editUser.nama_cabang = item.nama_cabang;
+            this.isAdd = false;
 
         },
-        addCabang() {
+        addUser() {
             this.dialog.value = true;
-            this.editCabang = {
-                kode: '',
+            this.editUser = {
+                username: '',
+                password: '',
+                kode_role: '',
+                nama_cabang: '',
                 nama: '',
-                alamat: '',
-                telp: '',
             };
             this.isAdd = true;
         },
-        async saveCabang() {
-          if (this.validateInputs(this.editCabang, ['kode', 'nama', 'alamat', 'telp'])) { // Menggunakan metode baru
+        async saveUser() {
+          if (this.validateInputs(this.editUser, ['username', 'nama', 'password', 'kode_role', 'nama_cabang'])) { // Menggunakan metode baru
               Swal.fire({
                 position: 'top',
                 icon: 'warning',
@@ -169,11 +205,11 @@ export default {
               });
               return;
             }
-            if (!this.isUnique(this.cabang, 'kode', this.editCabang.kode)) { // Hanya untuk penambahan
+            if (!this.isUnique(this.user, 'username', this.editUser.username)) { // Hanya untuk penambahan
               Swal.fire({
                 position: 'top',
                 icon: 'warning',
-                title: 'Kode cabang sudah ada',
+                title: 'Username sudah ada',
                 showConfirmButton: false,
                 timer: 1500,
                 toast: true,
@@ -185,11 +221,12 @@ export default {
               });
               return;
             }
-            await api.post('/m_cabang', {
-              kode: this.editCabang.kode,
-              nama: this.editCabang.nama.toUpperCase(),
-              alamat: this.editCabang.alamat.toUpperCase(),
-              telp: this.editCabang.telp,
+            await api.post('/m_user', {
+              username: this.editUser.username,
+              password: this.editUser.password,
+              id_role: this.editUser.kode_role,
+              id_cabang: this.editUser.nama_cabang,
+              nama: this.editUser.nama.toUpperCase(),
             })
             .then(() => {
               Swal.fire({
@@ -210,8 +247,10 @@ export default {
               alert('Add Failed' + error)
             })
         },
-        updateCabang() {
-            if (this.validateInputs(this.editCabang, ['kode', 'nama', 'alamat', 'telp'])) { // Menggunakan metode baru
+        updateUser() {
+            this.isAdd = false;
+            if (this.validateInputs(this.editUser, ['username', 'nama', 'password' ])
+            || !this.editUser.kode_role || this.editUser.nama_cabang ) { // Menggunakan metode baru
                 Swal.fire({
                     position: 'top',
                     icon: 'warning',
@@ -228,11 +267,12 @@ export default {
                 return;
             }
             // Tidak perlu memeriksa isUnique saat memperbarui
-            api.put(`/m_cabang/${this.editCabang.id}`, {
-              kode: this.editCabang.kode,
-              nama: this.editCabang.nama.toUpperCase(),
-              alamat: this.editCabang.alamat.toUpperCase(),
-              telp: this.editCabang.telp,
+            api.put(`/m_user/${this.editUser.id}`, {
+              username: this.editUser.username,
+              nama: this.editUser.nama.toUpperCase(),
+              password: this.editUser.password,
+              id_role: this.editUser.kode_role,
+              id_cabang: this.editUser.nama_cabang,
             })
             .then(() => {
               Swal.fire({
@@ -252,13 +292,13 @@ export default {
             .catch(error => {
               alert('Update Failed' + error)
             })
-            // Tambahkan logika untuk menyimpan perubahan ke Vuex atau API
         },
     },
     async created() {
-        // await this.getCabang(); // Tunggu hingga data diambil
-        this.fetchBranches(); // Memanggil fetchBranches setelah data diambil
-        console.log('user', this.userData); // Menampilkan data user di console
+        await this.fetchBranches(); // Tunggu hingga data diambil
+        await this.fetchUsers(); // Memastikan untuk menunggu fetchUsers selesai
+        await this.fetchRoles();
+
     }
 }
 </script>

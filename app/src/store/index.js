@@ -47,6 +47,12 @@ export default new Vuex.Store({
     },
     setCabang(state, data) {
       state.cabang = data; // Pastikan mutasi ini ada
+    },
+    setUsers(state, data) {
+      state.users = data; // Menyimpan data pengguna ke state
+    },
+    setUnit(state, data) {
+      state.unit = data; // Menyimpan data pengguna ke state
     }
   },
   actions: {
@@ -65,11 +71,25 @@ export default new Vuex.Store({
       const data = response.data;
       commit('setCabang', data);
       // console.log(data);
+    },
+    async getUsers({ commit }) {
+      const response = await api.get('/m_user');
+      const data = response.data;
+      commit('setUsers', data);
+      // console.log(data);
+    },
+    async getUnit({ commit }) {
+      const response = await api.get('/m_satuan');
+      const data = response.data;
+      commit('setUnit', data);
+      // console.log(data);
     }
   },
   getters: {
     getUserData: (state) => state.userData,
     isLoggedIn: (state) => !!state.userData.username,
-    getCabangData: (state) => state.cabang // Pastikan ini mengembalikan state.cabang
+    getCabangData: (state) => state.cabang, // Pastikan ini mengembalikan state.cabang
+    getUsersData: (state) => state.users, // Mengembalikan data pengguna
+    getUnitData: (state) => state.users, // Mengembalikan data pengguna
   }
 })

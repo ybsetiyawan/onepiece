@@ -13,6 +13,18 @@ app.get('/', (req, res) => {
     });
 });
 
+// m_satuan
+app.get('/m_satuan', db.getSatuan);
+app.post('/m_satuan', db.addSatuan);
+app.put('/m_satuan/:id', db.editSatuan);
+app.delete('/m_satuan/:id', db.deleteSatuan);
+
+// m_jenis_item
+app.get('/m_jenis_item', db.getJenisItem);
+app.post('/m_jenis_item', db.addJenisItem);
+app.put('/m_jenis_item/:id', db.editJenisItem);
+app.delete('/m_jenis_item/:id', db.deleteJenisItem);
+
 // m_cabang
 app.get('/m_cabang', db.getCabang);
 app.post('/m_cabang', db.addCabang);
