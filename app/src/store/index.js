@@ -53,7 +53,14 @@ export default new Vuex.Store({
     },
     setUnit(state, data) {
       state.unit = data; // Menyimpan data pengguna ke state
+    },
+    setItemType(state, data) {
+      state.itemtype = data; // Menyimpan data pengguna ke state
+    },
+    setItem(state, data) {
+      state.item = data; // Menyimpan data pengguna ke state
     }
+
   },
   actions: {
     setUserData({ commit }, userData) {
@@ -83,6 +90,18 @@ export default new Vuex.Store({
       const data = response.data;
       commit('setUnit', data);
       // console.log(data);
+    },
+    async getItemType({ commit }) {
+      const response = await api.get('/m_jenis_item');
+      const data = response.data;
+      commit('setItemType', data);
+      // console.log(data);
+    },
+    async getItem({ commit }) {
+      const response = await api.get('/m_item');
+      const data = response.data;
+      commit('setItem', data);
+      // console.log(data);
     }
   },
   getters: {
@@ -90,6 +109,8 @@ export default new Vuex.Store({
     isLoggedIn: (state) => !!state.userData.username,
     getCabangData: (state) => state.cabang, // Pastikan ini mengembalikan state.cabang
     getUsersData: (state) => state.users, // Mengembalikan data pengguna
-    getUnitData: (state) => state.users, // Mengembalikan data pengguna
+    getUnitData: (state) => state.unit, // Mengembalikan data pengguna
+    getItemTypeData: (state) => state.itemtype, // Mengembalikan data pengguna
+    getItemData: (state) => state.item, // Mengembalikan data pengguna
   }
 })

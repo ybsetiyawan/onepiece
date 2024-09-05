@@ -2,18 +2,17 @@
   <div>
       <v-card>
           <v-card-title>
-              <h4>Data User</h4>
+              <h4>Data Item Type</h4>
               <v-spacer></v-spacer>
-              <v-btn color="primary" dark @click="addUser">Add User</v-btn>
+              <v-btn color="primary" dark @click="add">Add Item Type</v-btn>
           </v-card-title>
           <v-card-text>
               <v-data-table
                   :headers="headers"
-                  :items="user"
+                  :items="itemtype"
                   :search="search"
                   @click:row="handleRowClick"
               />
-              
           </v-card-text>
       </v-card>
 
@@ -28,64 +27,21 @@
         <template v-slot:default="dialog">
           <v-card>
             <v-toolbar color="#78909C" dark >
-              {{ isAdd ? 'Add User' : 'Edit User' }}
+              {{ isAdd ? 'Add Item Type' : 'Edit Item Type' }}
             </v-toolbar>
             <v-form>
               <v-card-text>
                 <v-row>
-                  <v-col cols="6">
-                    <v-text-field
-                    
-                    label="Username"
-                    v-model="editUser.username"
-                    required
-                    type="text"
-                    :disabled="!isAdd"
-                    >
-                  </v-text-field>
-                  </v-col>
-                  <v-col cols="6">
+                  <v-col>
                     <v-text-field
                     label="Nama"
-                    v-model="editUser.nama"
+                    v-model="edit.nama"
                     required
                     type="text"
                     >
                   </v-text-field>
                   </v-col>
-                  <v-col cols="12">
-                    <v-text-field
-                    label="Password"
-                    v-model="editUser.password"
-                    required
-                    type="text"
-                  >
-                  </v-text-field>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-select
-                    label="Role"
-                    v-model="editUser.kode_role"
-                    :items="roles"
-                    item-text="kode"
-                    item-value="id"
-                    required
-                    type="text"
-                   >
-                    </v-select>
-                  </v-col>
-                  <v-col cols="12">
-                    <v-select
-                    label="Cabang"
-                    v-model="editUser.nama_cabang"
-                    :items="cabang"
-                    item-text="nama"
-                    item-value="id"
-                    required
-                    type="text"
-                   >
-                    </v-select>
-                  </v-col>
+                  
                 </v-row>
               </v-card-text>
             </v-form>
@@ -93,7 +49,7 @@
             <v-card-actions class="justify-center">
               <v-btn
                 text
-                @click="isAdd ? saveUser() : updateUser()"
+                @click="isAdd ? save() : update()"
                 color="success"
                 outlined
               >
@@ -123,75 +79,55 @@ import mixins from '@/mixins/mixins';
 export default {
   mixins: [mixins], // Menambahkan mixin ke dalam komponen
   computed: {
-        ...mapGetters(['getUsersData','getCabangData']), // Pastikan getter didefinisikan dengan benar
+        ...mapGetters(['getItemTypeData']), // Pastikan getter didefinisikan dengan benar
        
     },
     data() {
         return {
             headers: [
-                { text: 'Username', value: 'username' },
-                { text: 'Nama', value: 'nama'},
-                // { text: 'Password', value: 'password' },
-                { text: 'Role', value: 'kode_role'},
-                { text: 'Kode Branch', value: 'kode_cabang'},
-                { text: 'Branch', value: 'nama_cabang'},
-                { text: 'Alamat', value: 'alamat_cabang'},
+                { text: 'Id Item Type', value: 'id' },
+                { text: 'Nama Item Type', value: 'nama' },
             ],
-            user: [], // Pastikan ini diinisialisasi
-            cabang: [],
+            itemtype: [],
             search: '',
             dialog:{
                 value: false
             },
-            editUser: {},
+            edit: {},
             isAdd: false,
               
         }
     },
     methods: {
-        ...mapActions(['getUsers','getCabang']), // Pastikan action didefinisikan dengan benar
-        async fetchUsers() {
-          await this.getUsers(); // Memanggil action getUsers untuk mengambil data pengguna
-          // console.log('User Data from Getter:', this.getUsersData); // Log data pengguna dari getter
-          this.user = this.getUsersData; // Mengambil data pengguna dari getter
-        },
-        async fetchRoles() {
-          try {
-            const response = await api.get('/m_role');
-            this.roles = response.data;
-            // console.log('Role Data:', this.roles);
-          } catch (error) {
-            console.error('Error fetching roles:', error);
-          }
-        },
-        async fetchBranches() {
-          await this.getCabang();
-          this.cabang = this.getCabangData;
-          // console.log(this.cabang);
-        },  
-        
+        ...mapActions(['getItemType']), // Pastikan action didefinisikan dengan benar
+        async fetchItemType() {
+        try {
+            await this.getItemType();
+            this.itemtype = this.getItemTypeData;
+            // console.log('itemtype :', this.itemtype); // Tambahkan log ini
+        } catch (error) {
+            console.error('Error fetching itemtype:', error); // Tambahkan log ini
+        }
+    },
+
         handleRowClick(item) {              
             this.dialog.value = true; // Menampilkan dialog saat baris diklik
-            this.editUser = { ...item }; // Mengisi data untuk diedit
+            this.edit = { ...item }; // Mengisi data untuk diedit
             // console.log('Row clicked:', item); // Ganti dengan logika yang diinginkan
             // this.editUser.kode_role = item.kode_role;
             // this.editUser.nama_cabang = item.nama_cabang;
             this.isAdd = false;
 
         },
-        addUser() {
+        add() {
             this.dialog.value = true;
-            this.editUser = {
-                username: '',
-                password: '',
-                kode_role: '',
-                nama_cabang: '',
+            this.edit = {
                 nama: '',
             };
             this.isAdd = true;
         },
-        async saveUser() {
-          if (this.validateInputs(this.editUser, ['username', 'nama', 'password', 'kode_role', 'nama_cabang'])) { // Menggunakan metode baru
+        async save() {
+          if (this.validateInputs(this.edit, ['nama'])) { // Menggunakan metode baru
               Swal.fire({
                 position: 'top',
                 icon: 'warning',
@@ -207,11 +143,11 @@ export default {
               });
               return;
             }
-            if (!this.isUnique(this.user, 'username', this.editUser.username)) { // Hanya untuk penambahan
+            if (!this.isUnique(this.itemtype, 'nama', this.edit.nama)) { // Hanya untuk penambahan
               Swal.fire({
                 position: 'top',
                 icon: 'warning',
-                title: 'Username sudah ada',
+                title: 'Nama itemtype sudah ada',
                 showConfirmButton: false,
                 timer: 1500,
                 toast: true,
@@ -223,12 +159,8 @@ export default {
               });
               return;
             }
-            await api.post('/m_user', {
-              username: this.editUser.username,
-              password: this.editUser.password,
-              id_role: this.editUser.kode_role,
-              id_cabang: this.editUser.nama_cabang,
-              nama: this.editUser.nama.toUpperCase(),
+            await api.post('/m_satuan', {
+              nama: this.edit.nama.toUpperCase(),
             })
             .then(() => {
               Swal.fire({
@@ -249,11 +181,9 @@ export default {
               alert('Add Failed' + error)
             })
         },
-        updateUser() {
-            console.log('edit user',this.editUser)
+        update() {
             this.isAdd = false;
-            if (this.validateInputs(this.editUser, ['username', 'nama', 'password' ])
-            || !this.editUser.kode_role || !this.editUser.nama_cabang ) { // Menggunakan metode baru
+            if (this.validateInputs(this.edit, ['nama'])) { // Menggunakan metode baru
                 Swal.fire({
                     position: 'top',
                     icon: 'warning',
@@ -269,13 +199,9 @@ export default {
                 });
                 return;
             }
-            // Tidak perlu memeriksa isUnique saat memperbarui
-            api.put(`/m_user/${this.editUser.id}`, {
-              username: this.editUser.username,
-              nama: this.editUser.nama.toUpperCase(),
-              password: this.editUser.password,
-              id_role: this.editUser.kode_role,
-              id_cabang: this.editUser.nama_cabang,
+            // Tidak perlu memeriksa isUnique saat memperbarui  
+            api.put(`/m_satuan/${this.edit.id}`, {
+              nama: this.edit.nama.toUpperCase(),
             })
             .then(() => {
               Swal.fire({
@@ -298,10 +224,8 @@ export default {
         },
     },
     async created() {
-        await this.fetchBranches(); // Tunggu hingga data diambil
-        await this.fetchUsers(); // Memastikan untuk menunggu fetchUsers selesai
-        await this.fetchRoles();
-
+      await this.fetchItemType();
+      // console.log('Component created, itemtype data:', this.itemtype); //
     }
 }
 </script>

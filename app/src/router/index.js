@@ -4,6 +4,10 @@ import HomeView from '../views/HomeView.vue'
 import LoginView from '../components/LoginView.vue'
 import BranchV  from '../components/master/BranchV.vue'
 import UserV  from '../components/master/UserV.vue'
+import UnitV from '../components/master/UnitV.vue'
+import ItemTypeV from '../components/master/ItemTypeV.vue'
+import ItemV from '../components/master/ItemV.vue'
+
 import store from '../store'
 Vue.use(VueRouter)
 
@@ -39,8 +43,21 @@ const routes = [
   {
     path: '/unit',
     name: 'unit',
-    component: UserV
+    component: UnitV
+  },
+  {
+    path: '/itemtype',
+    name: 'itemtype',
+    component: ItemTypeV
+  
+  },
+  {
+    path: '/item',
+    name: 'item',
+    component: ItemV
+  
   }
+  
   
 ]
 

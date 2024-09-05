@@ -4,7 +4,7 @@
     <!-- -->
     <v-list dense>
         <v-list-item
-          v-for="item in filteredItems"
+          v-for="item in items"
           :key="item.title"
           :to="item.link"
           link
@@ -171,7 +171,7 @@
       </span>
       <v-spacer></v-spacer>
       <span v-if="username">
-        Branch : {{ kode_cabang}} - {{ nama_cabang }} | Address : {{ alamat_cabang }}
+        Branch : {{ kode_cabang }} - {{ nama_cabang }} | Address : {{ alamat_cabang }}
       </span>
     </v-footer>
   </v-app>
@@ -211,15 +211,15 @@ export default {
     id_role() {
       return this.getUserData.id_role; // Ambil id_role dari store
     },
-    filteredItems() {
-      // Filter items berdasarkan id_role
-      return this.items.filter(item => {
-        if (item.title === 'Master') {
-          return item.title === 'Master' && this.id_role == 4;
-        }
-        return true; // Tampilkan item lainnya  
-      });
-    }
+    // filteredItems() {
+    //   // Filter items berdasarkan id_role
+    //   return this.items.filter(item => {
+    //     if (item.title === 'Master') {
+    //       return item.title === 'Master' && this.id_role == 4;
+    //     }
+    //     return true; // Tampilkan item lainnya  
+    //   });
+    // }
   },
   data: () => ({
     editUser:{},

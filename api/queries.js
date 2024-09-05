@@ -10,7 +10,7 @@ const pool = new Pool({
 });
 
 const getSatuan = (request, response) => {
-    pool.query('SELECT * FROM m_satuan ORDER BY nama ASC', (error, results) =>{
+    pool.query('SELECT * FROM m_satuan ORDER BY id ASC', (error, results) =>{
         if (error){
             throw error
         }
@@ -53,7 +53,7 @@ const deleteSatuan = (request, response) => {
 }
 
 const getJenisItem = (request, response) => {
-    pool.query('SELECT * FROM m_jenis_item ORDER BY nama ASC', (error, results) =>{
+    pool.query('SELECT * FROM m_jenis_item ORDER BY id ASC', (error, results) =>{
         if (error){
             throw error
         }
@@ -94,6 +94,52 @@ const deleteJenisItem = (request, response) => {
         response.status(200).send('Data berhasil dihapus')
     })
 }
+
+
+const getItem = (request, response) => {
+    const { kode_cabang } = request.query;
+    pool.query(pgqueries.getItemCabang,[kode_cabang], (error, results) => {
+        if (error){
+            throw error
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
+const addItem = (request, response) => {
+    const {nama} = request.body
+    pool.query('INSERT INTO m_jenis_item (nama) VALUES ($1)', [nama], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(201).send('Data berhasil ditambahkan')
+    })
+}
+
+const editItem = (request, response) => {
+    const id = request.params.id;
+    const {nama} = request.body
+    pool.query('UPDATE m_jenis_item SET nama = $1 WHERE id = $2', [nama, id], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(200).send('Data berhasil diubah')
+     })
+    }
+
+const deleteItem = (request, response) => {
+    const id = request.params.id
+    pool.query('DELETE FROM m_jenis_item WHERE id = $1', [id], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(200).send('Data berhasil dihapus')
+    })
+}
+
 
 
 const getCabang = (request, response) => {
@@ -226,6 +272,8 @@ const deleteUser = (request, response) => {
     }
 
 
+
+
 //login
 const login = (request, response) => {
     const username = request.body.username;
@@ -273,5 +321,6 @@ module.exports = {
     getUser, addUser, editUser, deleteUser,
     getSatuan, addSatuan, editSatuan, deleteSatuan,
     getJenisItem, addJenisItem, editJenisItem, deleteJenisItem,
+    getItem,
     login
 }

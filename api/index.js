@@ -13,6 +13,9 @@ app.get('/', (req, res) => {
     });
 });
 
+// m_item
+app.get('/m_item', db.getItem)
+
 // m_satuan
 app.get('/m_satuan', db.getSatuan);
 app.post('/m_satuan', db.addSatuan);
