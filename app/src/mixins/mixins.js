@@ -10,6 +10,15 @@ export default {
         validateInputs(obj, keys) { // Metode baru untuk memvalidasi input
             return keys.some(key => !obj[key]);
         },
-       
+        
+        priceFormat(value) {
+            const formater = new Intl.NumberFormat('id-ID', {
+                style: 'decimal',
+                minimumFractionDigit: 0
+            });
+            return formater.format(value);
+        }
     },
 };
+
+

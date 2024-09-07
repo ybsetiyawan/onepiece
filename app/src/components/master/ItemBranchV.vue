@@ -9,7 +9,7 @@
           <v-card-text>
               <v-data-table
                   :headers="headers"
-                  :items="item"
+                  :items="formattedItems"
                   :search="search"
                   @click:row="handleRowClick"
               />
@@ -167,6 +167,13 @@ export default {
         kodeCabang(){
           return this.getUserData.kode_cabang;
         },
+        formattedItems() {
+            return this.item.map(item => ({
+                ...item,
+                hpp: this.priceFormat(item.hpp),
+                hjl: this.priceFormat(item.hjl)
+            }));
+        }
        
     },
     data() {

@@ -7,7 +7,7 @@
             <v-btn color="primary" dark @click="add">Add Item</v-btn>
         </v-card-title>
         <v-card-text>
-            <v-data-table :headers="headers" :items="item" :search="search" @click:row="handleRowClick" />
+            <v-data-table :headers="headers" :items="formattedItems" :search="search" @click:row="handleRowClick" />
         </v-card-text>
     </v-card>
 
@@ -83,6 +83,13 @@ export default {
     mixins: [mixins], // Menambahkan mixin ke dalam komponen
     computed: {
         ...mapGetters(['getItemData', 'getUnitData', 'getItemTypeData']), // Pastikan getter didefinisikan dengan benar
+        formattedItems() {
+            return this.item.map(item => ({
+                ...item,
+                hpp: this.priceFormat(item.hpp),
+                hjl: this.priceFormat(item.hjl)
+            }));
+        }
 
     },
     data() {
@@ -124,6 +131,7 @@ export default {
     },
     methods: {
         ...mapActions(['getItem', 'getUnit', 'getItemType']), // Pastikan action didefinisikan dengan benar
+
         async fetchItem() {
             try {
                 await this.getItem();
