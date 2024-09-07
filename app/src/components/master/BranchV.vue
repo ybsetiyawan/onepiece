@@ -38,7 +38,7 @@
                     label="Kode"
                     v-model="editCabang.kode"
                     required
-                    type="text"
+                    dense
                     :disabled="!isAdd"
                     >
                   </v-text-field>
@@ -48,7 +48,7 @@
                     label="Nama"
                     v-model="editCabang.nama"
                     required
-                    type="text"
+                    dense
                     >
                   </v-text-field>
                   </v-col>
@@ -57,7 +57,7 @@
                     label="Alamat"
                     v-model="editCabang.alamat"
                     required
-                    type="text"
+                    dense
                   >
                   </v-text-field>
                   </v-col>
@@ -66,7 +66,7 @@
                     label="Telp"
                     v-model="editCabang.telp"
                     required
-                    type="text"
+                    dense
                   >
                   </v-text-field>
                   </v-col>

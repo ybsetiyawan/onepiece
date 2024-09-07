@@ -39,7 +39,7 @@
                     label="Username"
                     v-model="editUser.username"
                     required
-                    type="text"
+                    dense
                     :disabled="!isAdd"
                     >
                   </v-text-field>
@@ -49,7 +49,7 @@
                     label="Nama"
                     v-model="editUser.nama"
                     required
-                    type="text"
+                    dense
                     >
                   </v-text-field>
                   </v-col>
@@ -58,7 +58,7 @@
                     label="Password"
                     v-model="editUser.password"
                     required
-                    type="text"
+                    dense
                   >
                   </v-text-field>
                   </v-col>
@@ -70,7 +70,7 @@
                     item-text="kode"
                     item-value="id"
                     required
-                    type="text"
+                    dense
                    >
                     </v-select>
                   </v-col>
@@ -82,7 +82,7 @@
                     item-text="nama"
                     item-value="id"
                     required
-                    type="text"
+                    dense
                    >
                     </v-select>
                   </v-col>

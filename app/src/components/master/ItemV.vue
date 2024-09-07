@@ -23,7 +23,7 @@
                         <v-card-text>
                             <v-row>
                                 <v-col cols="6">
-                                    <v-text-field label="Kode" v-model="edit.kode" required dense>
+                                    <v-text-field label="Kode" v-model="edit.kode" required dense :disabled="!isAdd">
                                     </v-text-field>
                                 </v-col>
 
@@ -43,26 +43,12 @@
                                 </v-col>
 
                                 <v-col cols="6">
-                                    <v-select
-                                      label="Satuan"
-                                      v-model="edit.nama_satuan"
-                                      :items="unit"
-                                      item-text="nama"
-                                      item-value="id"
-                                       :rules="[v => !!v || 'Satuan Item harus dipilih']"
-                                      required dense>
+                                    <v-select label="Satuan" v-model="edit.nama_satuan" :items="unit" item-text="nama" item-value="id" :rules="[v => !!v || 'Satuan Item harus dipilih']" required dense>
                                     </v-select>
                                 </v-col>
 
                                 <v-col cols="6">
-                                    <v-select
-                                      label="Item Type"
-                                      v-model="edit.nama_jenis_item"
-                                      :items="itemtype"
-                                      item-text="nama"
-                                      item-value="id"
-                                      :rules="[v => !!v || 'Item Type harus dipilih']"
-                                      required dense>
+                                    <v-select label="Item Type" v-model="edit.nama_jenis_item" :items="itemtype" item-text="nama" item-value="id" :rules="[v => !!v || 'Item Type harus dipilih']" required dense>
                                     </v-select>
                                 </v-col>
 
@@ -189,8 +175,8 @@ export default {
             this.isAdd = true;
         },
         async save() {
-          // console.log(this.edit)
-            if (this.validateInputs(this.edit, ['kode', 'nama', 'hpp', 'hjl','nama_satuan', 'nama_jenis_item'])) { // Menggunakan metode baru
+            // console.log(this.edit)
+            if (this.validateInputs(this.edit, ['kode', 'nama', 'hpp', 'hjl', 'nama_satuan', 'nama_jenis_item'])) { // Menggunakan metode baru
                 Swal.fire({
                     position: 'top',
                     icon: 'warning',
@@ -251,7 +237,7 @@ export default {
         },
         update() {
             this.isAdd = false;
-            if (this.validateInputs(this.edit, ['nama'])) { // Menggunakan metode baru
+            if (this.validateInputs(this.edit, ['kode', 'nama', 'hjl', 'nama_satuan', 'nama_jenis_item'])) { // Menggunakan metode baru
                 Swal.fire({
                     position: 'top',
                     icon: 'warning',
@@ -268,8 +254,13 @@ export default {
                 return;
             }
             // Tidak perlu memeriksa isUnique saat memperbarui  
-            api.put(`/m_satuan/${this.edit.id}`, {
+            api.put(`/m_item/${this.edit.id}`, {
+                    kode: this.edit.kode,
                     nama: this.edit.nama.toUpperCase(),
+                    hpp: this.edit.hpp,
+                    hjl: this.edit.hjl,
+                    id_satuan: this.edit.nama_satuan,
+                    id_jenis_item: this.edit.nama_jenis_item
                 })
                 .then(() => {
                     Swal.fire({

@@ -37,7 +37,7 @@
                     label="Kode"
                     v-model="edit.kode"
                     required
-                    type="text"
+                    dense
                     :disabled="!isAdd"
                     >
                   </v-text-field>
@@ -47,7 +47,7 @@
                     label="Nama"
                     v-model="edit.nama"
                     required
-                    type="text"
+                    dense
                     >
                   </v-text-field>
                   </v-col>
@@ -56,7 +56,7 @@
                     label="Stok Awal"
                     v-model="edit.stok_awal"
                     required
-                    type="text"
+                    dense
                     :disabled="!isAdd"
 
                   >
@@ -67,7 +67,7 @@
                     label="Stok Akhir"
                     v-model="edit.stok_akhir"
                     required
-                    type="text"
+                    dense
                     :disabled="!isAdd"
                   >
                   </v-text-field>
@@ -77,7 +77,7 @@
                     label="Hpp"
                     v-model="edit.hpp"
                     required
-                    type="text"
+                    dense
                   >
                   </v-text-field>
                   </v-col>
@@ -86,7 +86,7 @@
                     label="Hjl"
                     v-model="edit.hjl"
                     required
-                    type="text"
+                    dense
                   >
                   </v-text-field>
                   </v-col>
@@ -98,7 +98,7 @@
                     item-text="nama"
                     item-value="id"
                     required
-                    type="text"
+                    dense
                    >
                     </v-select>
                   </v-col>
@@ -110,7 +110,7 @@
                     item-text="nama"
                     item-value="id"
                     required
-                    type="text"
+                    dense
                    >
                     </v-select>
                   </v-col>
@@ -122,7 +122,7 @@
                     item-text="nama"
                     item-value="id"
                     required
-                    type="text"
+                    dense
                    >
                     </v-select>
                   </v-col>

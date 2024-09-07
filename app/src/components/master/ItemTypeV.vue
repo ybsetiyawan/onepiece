@@ -37,7 +37,7 @@
                     label="Nama"
                     v-model="edit.nama"
                     required
-                    type="text"
+                    dense
                     >
                   </v-text-field>
                   </v-col>

@@ -130,9 +130,9 @@ const addItem = (request, response) => {
 }
 
 const editItem = (request, response) => {
-    const id = request.params.id;
-    const {nama} = request.body
-    pool.query('UPDATE m_jenis_item SET nama = $1 WHERE id = $2', [nama, id], (error, results) => {
+    const {kode, nama , hpp, hjl, id_satuan, id_jenis_item} = request.body
+    pool.query('UPDATE m_item SET nama = $1, hpp = $2, hjl = $3, id_satuan = $4, id_jenis_item = $5 WHERE kode = $6',
+        [nama, hpp, hjl, id_satuan, id_jenis_item, kode], (error, results) => {
         if (error){
             console.log(error);
             response.status(500).send('Internal Server Error');
@@ -334,6 +334,6 @@ module.exports = {
     getSatuan, addSatuan, editSatuan, deleteSatuan,
     getJenisItem, addJenisItem, editJenisItem, deleteJenisItem,
     getItemCabang,
-    getItem, addItem,
+    getItem, addItem, editItem,
     login
 }
