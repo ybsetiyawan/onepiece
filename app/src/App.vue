@@ -236,7 +236,8 @@ export default {
           { title: 'User', icon: 'mdi-account', link: '/user' },
           { title: 'Unit', icon: 'mdi-cube-send', link: '/unit' },
           { title: 'Item Type', icon: 'mdi-bookshelf', link: '/itemtype' },
-          { title: 'Item', icon: 'mdi-basket', link: '/item' },
+          { title: 'Item', icon: 'mdi-duck', link: '/item' },
+          { title: 'Item Branch', icon: 'mdi-basket', link: '/itembranch' },
           { title: 'Ship', icon: 'mdi-ferry', link: '/ship' },
         ]
       },

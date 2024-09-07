@@ -9,6 +9,7 @@ import ItemTypeV from '../components/master/ItemTypeV.vue'
 import ItemV from '../components/master/ItemV.vue'
 
 import store from '../store'
+import ItemBranchV from '@/components/master/ItemBranchV.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -55,6 +56,12 @@ const routes = [
     path: '/item',
     name: 'item',
     component: ItemV
+  
+  },
+  {
+    path: '/itembranch',
+    name: 'item branch',
+    component: ItemBranchV
   
   }
   

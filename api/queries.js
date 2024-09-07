@@ -96,7 +96,7 @@ const deleteJenisItem = (request, response) => {
 }
 
 
-const getItem = (request, response) => {
+const getItemCabang = (request, response) => {
     const { kode_cabang } = request.query;
     pool.query(pgqueries.getItemCabang,[kode_cabang], (error, results) => {
         if (error){
@@ -105,6 +105,17 @@ const getItem = (request, response) => {
         response.status(200).json(results.rows)
     })
 }
+
+
+const getItem = (request, response) => {
+    pool.query(pgqueries.getItem, (error, results) => {
+        if (error) {
+            throw error
+        }
+        response.status(200).json(results.rows)
+    })
+}
+
 
 const addItem = (request, response) => {
     const {nama} = request.body
@@ -321,6 +332,7 @@ module.exports = {
     getUser, addUser, editUser, deleteUser,
     getSatuan, addSatuan, editSatuan, deleteSatuan,
     getJenisItem, addJenisItem, editJenisItem, deleteJenisItem,
+    getItemCabang,
     getItem,
     login
 }

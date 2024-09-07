@@ -16,6 +16,9 @@ app.get('/', (req, res) => {
 // m_item
 app.get('/m_item', db.getItem)
 
+// m_item_cabang
+app.get('/m_item_cabang', db.getItemCabang)
+
 // m_satuan
 app.get('/m_satuan', db.getSatuan);
 app.post('/m_satuan', db.addSatuan);

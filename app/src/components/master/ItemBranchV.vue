@@ -2,14 +2,14 @@
   <div>
       <v-card>
           <v-card-title>
-              <h4>Data Item Type</h4>
+              <h4>Data Item Branch</h4>
               <v-spacer></v-spacer>
-              <v-btn color="primary" dark @click="add">Add Item Type</v-btn>
+              <v-btn color="primary" dark @click="add">Add Item</v-btn>
           </v-card-title>
           <v-card-text>
               <v-data-table
                   :headers="headers"
-                  :items="itemtype"
+                  :items="item"
                   :search="search"
                   @click:row="handleRowClick"
               />
@@ -27,12 +27,22 @@
         <template v-slot:default="dialog">
           <v-card>
             <v-toolbar color="#78909C" dark >
-              {{ isAdd ? 'Add Item Type' : 'Edit Item Type' }}
+              {{ isAdd ? 'Add Item' : 'Edit Item' }}
             </v-toolbar>
             <v-form>
               <v-card-text>
                 <v-row>
-                  <v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                    label="Kode"
+                    v-model="edit.kode"
+                    required
+                    type="text"
+                    :disabled="!isAdd"
+                    >
+                  </v-text-field>
+                  </v-col>
+                  <v-col cols="4">
                     <v-text-field
                     label="Nama"
                     v-model="edit.nama"
@@ -41,7 +51,81 @@
                     >
                   </v-text-field>
                   </v-col>
-                  
+                  <v-col cols="4">
+                    <v-text-field
+                    label="Stok Awal"
+                    v-model="edit.stok_awal"
+                    required
+                    type="text"
+                    :disabled="!isAdd"
+
+                  >
+                  </v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                    label="Stok Akhir"
+                    v-model="edit.stok_akhir"
+                    required
+                    type="text"
+                    :disabled="!isAdd"
+                  >
+                  </v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                    label="Hpp"
+                    v-model="edit.hpp"
+                    required
+                    type="text"
+                  >
+                  </v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-text-field
+                    label="Hjl"
+                    v-model="edit.hjl"
+                    required
+                    type="text"
+                  >
+                  </v-text-field>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-select
+                    label="Satuan"
+                    v-model="edit.nama_satuan"
+                    :items="unit"
+                    item-text="nama"
+                    item-value="id"
+                    required
+                    type="text"
+                   >
+                    </v-select>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-select
+                    label="Item Type"
+                    v-model="edit.nama_item"
+                    :items="itemtype"
+                    item-text="nama"
+                    item-value="id"
+                    required
+                    type="text"
+                   >
+                    </v-select>
+                  </v-col>
+                  <v-col cols="4">
+                    <v-select
+                    label="Cabang"
+                    v-model="edit.nama_cabang"
+                    :items="cabang"
+                    item-text="nama"
+                    item-value="id"
+                    required
+                    type="text"
+                   >
+                    </v-select>
+                  </v-col>
                 </v-row>
               </v-card-text>
             </v-form>
@@ -79,16 +163,27 @@ import mixins from '@/mixins/mixins';
 export default {
   mixins: [mixins], // Menambahkan mixin ke dalam komponen
   computed: {
-        ...mapGetters(['getItemTypeData']), // Pastikan getter didefinisikan dengan benar
+        ...mapGetters(['getUnitData','getUserData']), // Pastikan getter didefinisikan dengan benar
+        kodeCabang(){
+          return this.getUserData.kode_cabang;
+        },
        
     },
     data() {
         return {
             headers: [
-                { text: 'Id Item Type', value: 'id' },
-                { text: 'Nama Item Type', value: 'nama' },
+                { text: 'Branch', value: 'kode_cabang'},
+                { text: 'Kode Item', value: 'kode' },
+                { text: 'Nama Item', value: 'nama' },
+                { text: 'Harga Beli', value: 'hpp' },
+                { text: 'Harga Jual', value: 'hjl'},
+                { text: 'Satuan', value: 'nama_satuan'},
+                { text: 'Item Type', value: 'jenis_item'},
+                { text: 'Stok Awal', value: 'stok_awal' },
+                { text: 'Stok Akhir', value: 'stok_akhir'},
             ],
-            itemtype: [],
+            item: [],
+            user: this.getUserData,
             search: '',
             dialog:{
                 value: false
@@ -99,16 +194,38 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['getItemType']), // Pastikan action didefinisikan dengan benar
-        async fetchItemType() {
-        try {
-            await this.getItemType();
-            this.itemtype = this.getItemTypeData;
-            // console.log('itemtype :', this.itemtype); // Tambahkan log ini
-        } catch (error) {
-            console.error('Error fetching itemtype:', error); // Tambahkan log ini
-        }
-    },
+        ...mapActions(['getUnit']), // Pastikan action didefinisikan dengan benar
+        
+        async fetchUnit() {
+          try {
+            await this.getUnit();
+            this.unit = this.getUnitData;
+            // console.log('unit :', this.unit); // Tambahkan log ini
+          } catch (error) {
+            console.error('Error fetching unit:', error); // Tambahkan log ini
+          }
+        },
+        
+        async fetchItemCabang() {
+          try {
+            const response = await api.get(`/m_item_cabang?kode_cabang=${this.kodeCabang}`);
+            this.item = response.data;
+            // console.log('Items :', this.item);
+            // console.log('unit :', this.unit); // Tambahkan log ini
+          } catch (error) {
+            console.error('Error fetching unit:', error); // Tambahkan log ini
+          }
+        },
+
+        async fetchUser() {
+          try {
+            this.user = this.getUserData;
+            // console.log('user :', this.user); // Tambahkan log ini
+          } catch (error) {
+            console.error('Error fetching unit:', error); // Tambahkan log ini
+          }
+        },
+    
 
         handleRowClick(item) {              
             this.dialog.value = true; // Menampilkan dialog saat baris diklik
@@ -143,11 +260,11 @@ export default {
               });
               return;
             }
-            if (!this.isUnique(this.itemtype, 'nama', this.edit.nama)) { // Hanya untuk penambahan
+            if (!this.isUnique(this.unit, 'nama', this.edit.nama)) { // Hanya untuk penambahan
               Swal.fire({
                 position: 'top',
                 icon: 'warning',
-                title: 'Nama itemtype sudah ada',
+                title: 'Nama Unit sudah ada',
                 showConfirmButton: false,
                 timer: 1500,
                 toast: true,
@@ -159,7 +276,7 @@ export default {
               });
               return;
             }
-            await api.post('/m_jenis_item', {
+            await api.post('/m_satuan', {
               nama: this.edit.nama.toUpperCase(),
             })
             .then(() => {
@@ -200,7 +317,7 @@ export default {
                 return;
             }
             // Tidak perlu memeriksa isUnique saat memperbarui  
-            api.put(`/m_jenis_item/${this.edit.id}`, {
+            api.put(`/m_satuan/${this.edit.id}`, {
               nama: this.edit.nama.toUpperCase(),
             })
             .then(() => {
@@ -224,8 +341,11 @@ export default {
         },
     },
     async created() {
-      await this.fetchItemType();
-      // console.log('Component created, itemtype data:', this.itemtype); //
-    }
+      await this.fetchUnit();
+      await this.fetchItemCabang();
+      this.fetchUser();
+      // console.log('Component created, unit data:', this.unit); //
+      // console.log('kode_cabang :', this.getUserData.kode_cabang)
+    },
 }
 </script>

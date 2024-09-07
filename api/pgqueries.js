@@ -45,7 +45,7 @@ SELECT
 		i.id_satuan,
 		s.nama AS nama_satuan,
 		i.id_jenis_item,
-		j.nama AS nama_jenis
+		j.nama AS jenis_item
 FROM m_item i
 JOIN m_satuan s ON i.id_satuan = s.id
 JOIN m_jenis_item j ON i.id_jenis_item = j.id
