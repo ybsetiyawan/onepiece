@@ -14,7 +14,8 @@ app.get('/', (req, res) => {
 });
 
 // m_item
-app.get('/m_item', db.getItem)
+app.get('/m_item', db.getItem),
+app.post('/m_item', db.addItem),
 
 // m_item_cabang
 app.get('/m_item_cabang', db.getItemCabang)

@@ -43,12 +43,26 @@
                                 </v-col>
 
                                 <v-col cols="6">
-                                    <v-select label="Satuan" v-model="edit.nama_satuan" :items="unit" item-text="nama" item-value="id" required dense>
+                                    <v-select
+                                      label="Satuan"
+                                      v-model="edit.nama_satuan"
+                                      :items="unit"
+                                      item-text="nama"
+                                      item-value="id"
+                                       :rules="[v => !!v || 'Satuan Item harus dipilih']"
+                                      required dense>
                                     </v-select>
                                 </v-col>
 
                                 <v-col cols="6">
-                                    <v-select label="Item Type" v-model="edit.nama_jenis_item" :items="itemtype" item-text="nama" item-value="id" required dense>
+                                    <v-select
+                                      label="Item Type"
+                                      v-model="edit.nama_jenis_item"
+                                      :items="itemtype"
+                                      item-text="nama"
+                                      item-value="id"
+                                      :rules="[v => !!v || 'Item Type harus dipilih']"
+                                      required dense>
                                     </v-select>
                                 </v-col>
 
@@ -170,14 +184,13 @@ export default {
                 nama: '',
                 hpp: '',
                 hjl: '',
-                satuan: '',
-                itemtype: '',
 
             };
             this.isAdd = true;
         },
         async save() {
-            if (this.validateInputs(this.edit, ['nama'])) { // Menggunakan metode baru
+          // console.log(this.edit)
+            if (this.validateInputs(this.edit, ['kode', 'nama', 'hpp', 'hjl','nama_satuan', 'nama_jenis_item'])) { // Menggunakan metode baru
                 Swal.fire({
                     position: 'top',
                     icon: 'warning',
@@ -193,11 +206,11 @@ export default {
                 });
                 return;
             }
-            if (!this.isUnique(this.unit, 'nama', this.edit.nama)) { // Hanya untuk penambahan
+            if (!this.isUnique(this.item, 'kode', this.edit.kode)) { // Hanya untuk penambahan
                 Swal.fire({
                     position: 'top',
                     icon: 'warning',
-                    title: 'Nama Unit sudah ada',
+                    title: 'Kode Item sudah ada',
                     showConfirmButton: false,
                     timer: 1500,
                     toast: true,
@@ -209,8 +222,13 @@ export default {
                 });
                 return;
             }
-            await api.post('/m_satuan', {
+            await api.post('/m_item', {
+                    kode: this.edit.kode.toUpperCase(),
                     nama: this.edit.nama.toUpperCase(),
+                    hpp: this.edit.hpp.toUpperCase(),
+                    hjl: this.edit.hjl.toUpperCase(),
+                    id_satuan: this.edit.nama_satuan,
+                    id_jenis_item: this.edit.nama_jenis_item
                 })
                 .then(() => {
                     Swal.fire({

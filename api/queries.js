@@ -118,8 +118,9 @@ const getItem = (request, response) => {
 
 
 const addItem = (request, response) => {
-    const {nama} = request.body
-    pool.query('INSERT INTO m_jenis_item (nama) VALUES ($1)', [nama], (error, results) => {
+    const {kode, nama, hpp, hjl, id_satuan, id_jenis_item} = request.body
+    pool.query('INSERT INTO m_item (kode, nama, hpp, hjl, id_satuan, id_jenis_item) VALUES ($1, $2, $3, $4, $5, $6)',
+        [kode, nama, hpp, hjl, id_satuan, id_jenis_item], (error, results) => {
         if (error){
             console.log(error);
             response.status(500).send('Internal Server Error');
@@ -333,6 +334,6 @@ module.exports = {
     getSatuan, addSatuan, editSatuan, deleteSatuan,
     getJenisItem, addJenisItem, editJenisItem, deleteJenisItem,
     getItemCabang,
-    getItem,
+    getItem, addItem,
     login
 }
