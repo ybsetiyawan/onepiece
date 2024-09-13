@@ -19,7 +19,8 @@ app.post('/m_item', db.addItem),
 app.put('/m_item/:id', db.editItem),
 
 // m_item_cabang
-app.get('/m_item_cabang', db.getItemCabang)
+app.get('/m_item_cabang', db.getItemCabang),
+app.post('/m_item_cabang', db.addItemCabang)
 
 // m_satuan
 app.get('/m_satuan', db.getSatuan);

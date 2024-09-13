@@ -101,7 +101,6 @@ export default new Vuex.Store({
       const response = await api.get('/m_item');
       const data = response.data;
       commit('setItem', data);
-      // console.log(data);
     }
   },
   getters: {

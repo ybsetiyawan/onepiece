@@ -11,7 +11,6 @@
                   :headers="headers"
                   :items="formattedItems"
                   :search="search"
-                  @click:row="handleRowClick"
               />
           </v-card-text>
       </v-card>
@@ -33,24 +32,23 @@
               <v-card-text>
                 <v-row>
                   <v-col cols="4">
-                    <v-text-field
-                    label="Kode"
+                    <v-select
+                    label="Item Kode"
                     v-model="edit.kode"
+                    :items="availableItems"
+                    item-value="id"
+                    item-text="nama"
                     required
                     dense
-                    :disabled="!isAdd"
-                    >
-                  </v-text-field>
+                   >
+                   <template v-slot:item="data">
+                    <div class="small-item">
+                      {{ data.item.kode }} - {{ data.item.nama }}
+                    </div>
+                   </template>
+                    </v-select>
                   </v-col>
-                  <v-col cols="4">
-                    <v-text-field
-                    label="Nama"
-                    v-model="edit.nama"
-                    required
-                    dense
-                    >
-                  </v-text-field>
-                  </v-col>
+                  
                   <v-col cols="4">
                     <v-text-field
                     label="Stok Awal"
@@ -72,60 +70,18 @@
                   >
                   </v-text-field>
                   </v-col>
-                  <v-col cols="4">
+                  
+                  <!-- <v-col cols="4">
                     <v-text-field
-                    label="Hpp"
-                    v-model="edit.hpp"
-                    required
-                    dense
-                  >
-                  </v-text-field>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-text-field
-                    label="Hjl"
-                    v-model="edit.hjl"
-                    required
-                    dense
-                  >
-                  </v-text-field>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-select
-                    label="Satuan"
-                    v-model="edit.nama_satuan"
-                    :items="unit"
-                    item-text="nama"
-                    item-value="id"
-                    required
-                    dense
-                   >
-                    </v-select>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-select
-                    label="Item Type"
-                    v-model="edit.nama_item"
-                    :items="itemtype"
-                    item-text="nama"
-                    item-value="id"
-                    required
-                    dense
-                   >
-                    </v-select>
-                  </v-col>
-                  <v-col cols="4">
-                    <v-select
                     label="Cabang"
-                    v-model="edit.nama_cabang"
-                    :items="cabang"
-                    item-text="nama"
-                    item-value="id"
+                    :value="kodeCabang"
                     required
                     dense
-                   >
-                    </v-select>
-                  </v-col>
+                    disabled
+                  >
+                  </v-text-field>
+                  </v-col> -->
+                  
                 </v-row>
               </v-card-text>
             </v-form>
@@ -163,9 +119,12 @@ import mixins from '@/mixins/mixins';
 export default {
   mixins: [mixins], // Menambahkan mixin ke dalam komponen
   computed: {
-        ...mapGetters(['getUnitData','getUserData']), // Pastikan getter didefinisikan dengan benar
+        ...mapGetters(['getUnitData','getUserData','getItemData','getItemTypeData']), // Pastikan getter didefinisikan dengan benar
         kodeCabang(){
           return this.getUserData.kode_cabang;
+        },
+        idCabang(){
+          return this.getUserData.id_cabang;
         },
         formattedItems() {
             return this.item.map(item => ({
@@ -173,6 +132,10 @@ export default {
                 hpp: this.priceFormat(item.hpp),
                 hjl: this.priceFormat(item.hjl)
             }));
+        },
+        availableItems() {
+          const existingItemIds = this.formattedItems.map(item => item.id);
+          return this.items.filter(item => !existingItemIds.includes(item.id));
         }
        
     },
@@ -201,7 +164,7 @@ export default {
         }
     },
     methods: {
-        ...mapActions(['getUnit']), // Pastikan action didefinisikan dengan benar
+        ...mapActions(['getUnit', 'getItem', 'getItemType']), // Pastikan action didefinisikan dengan benar
         
         async fetchUnit() {
           try {
@@ -232,17 +195,37 @@ export default {
             console.error('Error fetching unit:', error); // Tambahkan log ini
           }
         },
+
+        async fetchItem() {
+          try {
+            await this.getItem();
+            this.items = this.getItemData;
+            // console.log('Items All :', this.items); // Tambahkan log ini
+          } catch (error) {
+            console.error('Error fetching unit:', error); // Tambahkan log ini
+          }
+        },
+
+        async fetchItemType() {
+          try {
+            await this.getItemType();
+            this.itemtype = this.getItemTypeData;
+            // console.log('unit :', this.unit); // Tambahkan log ini
+          } catch (error) {
+            console.error('Error fetching unit:', error); // Tambahkan log ini
+          }
+        },
     
 
-        handleRowClick(item) {              
-            this.dialog.value = true; // Menampilkan dialog saat baris diklik
-            this.edit = { ...item }; // Mengisi data untuk diedit
-            // console.log('Row clicked:', item); // Ganti dengan logika yang diinginkan
-            // this.editUser.kode_role = item.kode_role;
-            // this.editUser.nama_cabang = item.nama_cabang;
-            this.isAdd = false;
+        // handleRowClick(item) {              
+        //     this.dialog.value = true; // Menampilkan dialog saat baris diklik
+        //     this.edit = { ...item }; // Mengisi data untuk diedit
+        //     // console.log('Row clicked:', item); // Ganti dengan logika yang diinginkan
+        //     // this.editUser.kode_role = item.kode_role;
+        //     // this.editUser.nama_cabang = item.nama_cabang;
+        //     this.isAdd = false;
 
-        },
+        // },
         add() {
             this.dialog.value = true;
             this.edit = {
@@ -251,7 +234,7 @@ export default {
             this.isAdd = true;
         },
         async save() {
-          if (this.validateInputs(this.edit, ['nama'])) { // Menggunakan metode baru
+          if (this.validateInputs(this.edit, ['kode', 'stok_awal', 'stok_akhir'])) { // Menggunakan metode baru
               Swal.fire({
                 position: 'top',
                 icon: 'warning',
@@ -267,24 +250,11 @@ export default {
               });
               return;
             }
-            if (!this.isUnique(this.unit, 'nama', this.edit.nama)) { // Hanya untuk penambahan
-              Swal.fire({
-                position: 'top',
-                icon: 'warning',
-                title: 'Nama Unit sudah ada',
-                showConfirmButton: false,
-                timer: 1500,
-                toast: true,
-                width: '400px',
-                background: '#EF9A9A',
-                color: '#fff',
-                padding: '16px',
-                iconColor: '#fff',
-              });
-              return;
-            }
-            await api.post('/m_satuan', {
-              nama: this.edit.nama.toUpperCase(),
+            await api.post('/m_item_cabang', {
+              id_item: this.edit.kode,
+              stok_awal: this.edit.stok_awal,
+              stok_akhir: this.edit.stok_akhir,
+              id_cabang: this.idCabang,
             })
             .then(() => {
               Swal.fire({
@@ -307,7 +277,7 @@ export default {
         },
         update() {
             this.isAdd = false;
-            if (this.validateInputs(this.edit, ['nama'])) { // Menggunakan metode baru
+            if (this.validateInputs(this.edit, ['kode', 'stok_awal', 'stok_akhir'])) { // Menggunakan metode baru
                 Swal.fire({
                     position: 'top',
                     icon: 'warning',
@@ -351,8 +321,17 @@ export default {
       await this.fetchUnit();
       await this.fetchItemCabang();
       this.fetchUser();
+      await this.fetchItem();
+      await this.fetchItemType();
       // console.log('Component created, unit data:', this.unit); //
       // console.log('kode_cabang :', this.getUserData.kode_cabang)
     },
 }
 </script>
+
+<style scoped>
+.small-item {
+  font-size: 12px;
+  padding: 4px;
+}
+</style>

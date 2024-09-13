@@ -49,7 +49,7 @@ SELECT
 FROM m_item i
 JOIN m_satuan s ON i.id_satuan = s.id
 JOIN m_jenis_item j ON i.id_jenis_item = j.id
-ORDER BY i.id ASC;
+ORDER BY i.id DESC;
 `;
 
 const getItemCabang = `

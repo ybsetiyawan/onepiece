@@ -1,4 +1,5 @@
 const Pool = require('pg').Pool;
+const { request, response } = require('express');
 const pgqueries = require('./pgqueries');
 
 const pool = new Pool({
@@ -104,6 +105,20 @@ const getItemCabang = (request, response) => {
         }
         response.status(200).json(results.rows)
     })
+}
+
+const addItemCabang = (request, response) => {
+    const { id_item, id_cabang, stok_awal, stok_akhir } = request.body
+    pool.query('INSERT INTO m_item_cabang (id_item, id_cabang, stok_awal, stok_akhir) VALUES ($1, $2, $3, $4)',
+        [id_item, id_cabang, stok_awal, stok_akhir], (error, result) => {
+            if(error) {
+                console.log(error);
+                response.status(500).send('Internal Server Error');;
+            }
+            response.status(201).send('Data berhasil ditambahkan');
+        }
+    ) 
+
 }
 
 
@@ -333,7 +348,7 @@ module.exports = {
     getUser, addUser, editUser, deleteUser,
     getSatuan, addSatuan, editSatuan, deleteSatuan,
     getJenisItem, addJenisItem, editJenisItem, deleteJenisItem,
-    getItemCabang,
+    getItemCabang, addItemCabang,
     getItem, addItem, editItem,
     login
 }
