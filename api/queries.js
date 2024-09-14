@@ -4,7 +4,8 @@ const pgqueries = require('./pgqueries');
 
 const pool = new Pool({
     user: 'postgres',
-    host: 'localhost',
+    // host: 'localhost',
+    host: '103.31.38.210',
     database: 'db_onepiece',
     password: 'pakepake',
     port: 5432,
