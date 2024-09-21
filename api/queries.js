@@ -4,8 +4,8 @@ const pgqueries = require('./pgqueries');
 
 const pool = new Pool({
     user: 'postgres',
-    // host: 'localhost',
-    host: '103.31.38.210',
+    host: 'localhost',
+    // host: '103.31.38.210',
     database: 'db_onepiece',
     password: 'pakepake',
     port: 5432,
@@ -341,6 +341,104 @@ const login = (request, response) => {
     });
 }
 
+const t_trans_in =  async (request, response) => {
+    try {
+        const { tanggal,keterangan, detail } = request.body;
+        if (!Array.isArray(detail)) {
+            return response.status(400).json({
+                error: 'Detail bukan array'
+            });
+        }
+        const client = await pool.connect()
+        try {
+            await client.query('BEGIN')
+            const queryTransIn = 'INSERT INTO t_trans_in (tanggal, keterangan) VALUES ($1, $2) RETURNING id, no_faktur'
+
+            const valuesTransIn = [tanggal, keterangan];
+            const resultTransIn = await client.query(queryTransIn, valuesTransIn);
+            const transInId = resultTransIn.rows[0].id;
+            let nofaktur = resultTransIn.rows[0].no_faktur;
+
+            nofaktur = `${transInId.toString().padStart(5, '0')}`;
+            await client.query('UPDATE t_trans_in set no_faktur = $1 where id = $2', [nofaktur, transInId])
+
+            for (let i = 0; i < detail.length; i++) {
+                const {id_item_cabang, qty, harga } = detail[i];
+                const subtotal = qty * harga;
+
+                const queryDetail = `
+                    INSERT INTO t_trans_in_detail (id_transaksi, id_item_cabang, qty, harga, subtotal)
+                    VALUES ($1, $2, $3, $4, $5)`;
+                const valuesDetail = [nofaktur, id_item_cabang, qty, harga, subtotal];
+                await client.query(queryDetail, valuesDetail)
+
+                const queryLastStok = `
+                    SELECT stok_akhir
+                    FROM stok_harian
+                    WHERE id_item_cabang = $1
+                    ORDER BY tanggal DESC
+                    LIMIT 1
+                `;
+
+                const result = await client.query(queryLastStok, [id_item_cabang]);
+
+                let stokAwal;
+
+                // Jika ada data di stok_harian, gunakan stok_akhir sebagai stok_awal
+                if (result.rows.length > 0) {
+                    stokAwal = result.rows[0].stok_akhir;
+                } else {
+                    // Jika belum ada data di stok_harian, ambil stok_awal dari m_item_cabang
+                    const queryStokAwalItemCabang = `
+                        SELECT stok_akhir
+                        FROM m_item_cabang
+                        WHERE id = $1
+                    `;
+                    const resultItemCabang = await client.query(queryStokAwalItemCabang, [id_item_cabang]);
+
+                    // Jika ada stok di m_item_cabang, gunakan stok_akhir sebagai stok_awal, jika tidak asumsikan 0
+                    stokAwal = resultItemCabang.rows.length > 0 ? resultItemCabang.rows[0].stok_akhir : 0;
+                }
+                // hitung stok_akhir setelah perubahan
+                const perubahanStok = qty;  // Qty mewakili perubahan stok (positif atau negatif)
+                const stokAkhir = stokAwal - perubahanStok;  // Kurangi perubahan stok (qty) dari stok_awal
+
+                const queryStokHarian = `
+                    INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok)
+                    VALUES ($1, $2, $3, $4, $5)
+                `;
+                const valuesStokHarian = [tanggal, id_item_cabang, stokAwal, stokAkhir, perubahanStok];
+                await client.query(queryStokHarian, valuesStokHarian);
+
+                const queryUpdateStok = `
+                    UPDATE m_item_cabang
+                    SET stok_awal = stok_awal - $1,
+                    stok_akhir = stok_akhir - $1
+                    WHERE id = $2`;
+                    
+                const valuesUpdateStok = [qty, id_item_cabang];
+                await client.query(queryUpdateStok, valuesUpdateStok);
+
+            }
+            await client.query('COMMIT');
+            response.status(200).json({
+                message: 'Transaksi berhasil ditambahkan',
+                no_faktur: nofaktur
+            });
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('Error:', error);
+            throw error;
+        } finally {
+            client.release()
+        } 
+
+    } catch (error) {
+        console.error('Error saat menyimpan transaksi:', error); // Log error detail
+        response.status(500).json({ error: 'Gagal menyimpan transaksi' });
+    }
+}
+
 
 
 module.exports = {
@@ -351,5 +449,6 @@ module.exports = {
     getJenisItem, addJenisItem, editJenisItem, deleteJenisItem,
     getItemCabang, addItemCabang,
     getItem, addItem, editItem,
-    login
+    login,
+    t_trans_in
 }

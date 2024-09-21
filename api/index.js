@@ -55,6 +55,11 @@ app.delete('/m_user/:id', db.deleteUser);
 // login
 app.post('/login', db.login);
 
+// t_trans_in
+app.post('/t_trans_in', async (req, res)=> {
+  await db.t_trans_in(req, res)
+})
+
 
 
 

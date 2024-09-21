@@ -7,7 +7,7 @@ import UserV  from '../components/master/UserV.vue'
 import UnitV from '../components/master/UnitV.vue'
 import ItemTypeV from '../components/master/ItemTypeV.vue'
 import ItemV from '../components/master/ItemV.vue'
-
+import SalesV from '../components/transactions/SalesV.vue'
 import store from '../store'
 import ItemBranchV from '@/components/master/ItemBranchV.vue'
 Vue.use(VueRouter)
@@ -63,6 +63,11 @@ const routes = [
     name: 'item branch',
     component: ItemBranchV
   
+  },
+  {
+    path: '/sales',
+    name: 'sales',
+    component: SalesV
   }
   
   

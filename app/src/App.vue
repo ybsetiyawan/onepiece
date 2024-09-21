@@ -241,7 +241,9 @@ export default {
           { title: 'Ship', icon: 'mdi-ferry', link: '/ship' },
         ]
       },
-      { title: 'Transaction', icon: 'mdi-file-document', link: '/transaction' },
+      { title: 'Transaction', icon: 'mdi-file-document', subItems: [
+        { title: 'Sales', icon: 'mdi-sale', link: '/sales' },
+      ] },
     ],
   }
 ), 
