@@ -37,9 +37,10 @@
             <th>Nama</th>
             <th>Hpp</th>
             <th>Hjl</th>
-            <th>Uom</th>
             <th>Qty</th>
-            <th class="delete-column"></th>
+            <th>Stok</th>
+            <th>Uom</th>
+            <th class="delete-column">-</th>
           </tr>
         </thead>
         <tbody class="cart-body">
@@ -48,12 +49,15 @@
             <td>{{ item.nama }}</td>
             <td>{{ item.hpp }}</td>
             <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
-            <td contenteditable="true" @input="updateHpp(index, $event)" class="warning">{{ item.hjl }}</td> <!-- Make hpp editable -->
+            <td contenteditable="true" @input="updateHpp(index, $event)" class="texthargajual">{{ item.hjl }}</td> <!-- Make hpp editable -->
+            <td>
+              <input class="qty" type="number" name="qty" id="qty" v-model="quantities[index]" @input="updateQuantity(index, $event.target.value)" min="1">
+            </td>
+            <td>{{ item.stok_akhir }}</td>
             <td>{{ item.nama_satuan }}</td>
-            <td>{{ item.qty }}</td>
             <td>
               <v-icon 
-                @click="removeFromCart(index)"
+                @click="removeItem(index)"
                 color="red"
                 size="15px"
               >mdi-delete</v-icon>
@@ -150,6 +154,7 @@ export default {
             },
             search: '',
             item: [],
+            quantities: {},
             user: this.getUserData,
         };
     },
@@ -157,6 +162,8 @@ export default {
     
     addItem(item) {
       this.selectedItems.push(item);
+      this.$set(this.quantities, this.selectedItems.length - 1, 1); 
+      this.dialog.value = false;
       console.log('selectedItems :', this.selectedItems);
     },
     removeItem(index) {
@@ -219,23 +226,23 @@ export default {
   gap: 10px;
 }
 
-.item {
+/* .item {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 10px;
   border: 1px solid #ddd;
   border-radius: 4px;
-}
+} */
 
-.item button {
+/* .item button {
   background-color: #007bff;
   color: white;
   border: none;
   padding: 5px 10px;
   border-radius: 4px;
   cursor: pointer;
-}
+} */
 
 .item button:hover {
   background-color: #0056b3;
@@ -275,5 +282,15 @@ export default {
 
 .input-field{
     margin-top: 10px;
+}
+.qty{
+  max-width: 50px
+}
+.cart-body{
+  font-size: 12px;
+}
+.texthargajual{
+  background-color: #a9abad;
+  color: rgb(255, 255, 255);
 }
 </style>
