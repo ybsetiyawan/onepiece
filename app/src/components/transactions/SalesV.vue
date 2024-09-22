@@ -10,20 +10,32 @@
       <div class="form-group flex-container"></div>
       <v-divider/>
       <div class="form-group flex-container">
-        <div class="flex-item">
+        <div>
           <label for="tanggal">Tanggal:</label>
-          <input type="date" id="tanggal" class="input-field"  />
+          <input type="date" id="tanggal" class="input-field" v-model="transaction.tanggal"/>
         </div>
         <v-divider vertical/>
         <div class="flex-item">
-          <label for="alamat">Keterangan:</label>
-          <input type="text" id="keterangan" autocomplete = "off" class="input-field"/>
+          <label for="keterangan">Keterangan:</label>
+          <input type="text" id="keterangan" autocomplete = "off" class="input-field" v-model="transaction.keterangan"/>
         </div>
         <v-divider vertical/>
-        <div class="flex-item ">
-          <label for="alamat">Cari Barang:</label>
+        <div class="flex-item-button">
+          <label for="search"></label>
           <v-btn  small elevation="7" class="input-field">
-              <v-icon @click="dialog.value = true" elevation="7">mdi-magnify</v-icon>
+              <v-icon @click="dialog.value = true" elevation="10">mdi-magnify</v-icon>
+          </v-btn>
+        </div>
+        <div class="flex-item-button">
+          <label for="save"></label>
+          <v-btn  small elevation="7" class="input-field">
+              <v-icon @click="saveTransaction" elevation="7">mdi-content-save</v-icon>
+          </v-btn>
+        </div>
+        <div class="flex-item-button">
+          <label for="cancel"></label>
+          <v-btn  small elevation="7" class="input-field">
+              <v-icon @click="resetForm" elevation="7">mdi-delete</v-icon>
           </v-btn>
         </div>
       </div>
@@ -49,7 +61,7 @@
             <td>{{ item.nama }}</td>
             <td>{{ item.hpp }}</td>
             <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
-            <td contenteditable="true" @input="updateHpp(index, $event)" class="texthargajual">{{ item.hjl }}</td> <!-- Make hpp editable -->
+            <td contenteditable="true" @input="updateHjl(index, $event)" class="texthargajual">{{ item.hjl }}</td> <!-- Make hpp editable -->
             <td>
               <input class="qty" type="number" name="qty" id="qty" v-model="quantities[index]" @input="updateQuantity(index, $event.target.value)" min="1">
             </td>
@@ -129,7 +141,6 @@ export default {
             return this.item.map(item => ({
                 ...item,
                 hpp: this.priceFormat(item.hpp),
-                hjl: this.priceFormat(item.hjl)
             }));
         },
   },
@@ -155,6 +166,14 @@ export default {
             search: '',
             item: [],
             quantities: {},
+            transaction: {
+              // idCustomer: '',
+              // nama: '',
+              // kode: '',
+              tanggal: '',
+              keterangan: '',
+            },
+            noFaktur: '',
             user: this.getUserData,
         };
     },
@@ -169,6 +188,51 @@ export default {
     removeItem(index) {
       this.selectedItems.splice(index, 1);
     },
+
+    updateHjl(index, event) {
+      const newValue = event.target.innerText.trim();
+      // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
+      this.selectedItems[index].hjl = newValue;
+  },
+    async saveTransaction() {
+      if(!this.transaction.tanggal || !this.transaction.keterangan || !this.selectedItems === 0){
+        alert("Ada data yang belum lengkap");
+        return;
+      }
+
+      const transactionData = {
+        tanggal: this.transaction.tanggal,
+        keterangan: this.transaction.keterangan,
+        detail: this.selectedItems.map((item, index) => ({
+                id_item_cabang: item.id_item,
+                qty: this.quantities[index],
+                harga: item.hjl,
+            }))
+      }
+      try {
+        const response = await api.post('/t_trans_in', transactionData);
+        this.noFaktur = response.data.no_faktur;
+        console.log('no faktur:', this.noFaktur);
+
+        console.log('data transaksi:', transactionData)
+        alert('transaksi sukses');
+      } catch (error) {
+        console.log('error simpan data transaksi', error);
+
+      }
+      
+    },
+
+    resetForm() {
+        // Reset the transaction object and selected items
+        this.transaction.tanggal = '';
+        this.transaction.keterangan = '';
+        this.selectedItems = [];
+        this.quantities = {};
+    },
+   
+
+
     
     async fetchItemCabang() {
           try {
@@ -290,7 +354,11 @@ export default {
   font-size: 12px;
 }
 .texthargajual{
-  background-color: #a9abad;
-  color: rgb(255, 255, 255);
+  background-color: #dcdee0;
 }
+.flex-item-button{
+  margin-top: 15px;
+}
+
+
 </style>
