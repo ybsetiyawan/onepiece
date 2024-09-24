@@ -5,37 +5,40 @@
         <div class="flex-container">
               <h4>Transaksi Penjualan Accesories</h4>
               <v-spacer></v-spacer>
-              <v-btn color="primary" dark elevation="7">New</v-btn>
+              <button
+                type ="submit"
+                @click="buttonEnabled"
+                :disabled="isButtonEnabled" class="new-button">New</button>
         </div>
       <div class="form-group flex-container"></div>
       <v-divider/>
       <div class="form-group flex-container">
         <div>
           <label for="tanggal">Tanggal:</label>
-          <input type="date" id="tanggal" class="input-field" v-model="transaction.tanggal"/>
+          <input type="date" id="tanggal" class="input-field" v-model="transaction.tanggal" :disabled="!isButtonEnabled"/>
         </div>
         <v-divider vertical/>
         <div class="flex-item">
           <label for="keterangan">Keterangan:</label>
-          <input type="text" id="keterangan" autocomplete = "off" class="input-field" v-model="transaction.keterangan"/>
+          <input type="text" id="keterangan" autocomplete = "off" class="input-field" v-model="transaction.keterangan" :disabled="!isButtonEnabled"/>
         </div>
         <v-divider vertical/>
         <div class="flex-item-button">
-          <label for="search"></label>
-          <v-btn  small elevation="7" class="input-field">
-              <v-icon @click="dialog.value = true" elevation="10">mdi-magnify</v-icon>
+          <!-- <label for="search"></label> -->
+          <v-btn  small elevation="7" class="input-field option-button" :disabled="!isButtonEnabled">
+              <v-icon @click="dialog.value = true" elevation="10" title="search">mdi-magnify</v-icon>
           </v-btn>
         </div>
         <div class="flex-item-button">
-          <label for="save"></label>
-          <v-btn  small elevation="7" class="input-field">
-              <v-icon @click="saveTransaction" elevation="7">mdi-content-save</v-icon>
+          <!-- <label for="save"></label> -->
+          <v-btn  small elevation="7" class="input-field option-button" :disabled="!isSaveButtonEnabled">
+              <v-icon @click="saveTransaction" elevation="7" title="save">mdi-content-save</v-icon>
           </v-btn>
         </div>
         <div class="flex-item-button">
-          <label for="cancel"></label>
-          <v-btn  small elevation="7" class="input-field">
-              <v-icon @click="resetForm" elevation="7">mdi-delete</v-icon>
+          <!-- <label for="cancel"></label> -->
+          <v-btn  small elevation="7" class="input-field option-button" :disabled="!isSaveButtonEnabled">
+              <v-icon @click="resetForm" elevation="7" title="cancel">mdi-refresh</v-icon>
           </v-btn>
         </div>
       </div>
@@ -102,6 +105,8 @@
                   :items="formattedItems"
                   :search="search"
                   @click:row="addItem"
+                  :item-disabled="isItemIncart"
+                  item-value="kode"
               />
             </v-form>
             <v-divider class="border-opacity-80"></v-divider>
@@ -143,6 +148,10 @@ export default {
                 hpp: this.priceFormat(item.hpp),
             }));
         },
+        isSaveButtonEnabled() {
+          return this.selectedItems.length > 0;
+        },
+       
   },
   data() {
     return {
@@ -175,18 +184,39 @@ export default {
             },
             noFaktur: '',
             user: this.getUserData,
+            isButtonEnabled : false
         };
     },
+    
     methods: {
     
+    buttonEnabled() {
+      this.isButtonEnabled = true;
+    },
+
+    isItemIncart(item) {
+      const isInCart = this.selectedItems.some(cartItem => cartItem.kode === item.kode);
+    
+    // Log hasil pengecekan ke konsol untuk memastikan
+    console.log(`Checking if item is in cart: ${item.nama} (kode: ${item.kode}) => ${isInCart}`);
+    
+    return isInCart;
+    },
+   
+    
     addItem(item) {
+      if (this.isItemIncart(item)) {
+    return; // Mencegah penambahan item duplikat
+  }
       this.selectedItems.push(item);
-      this.$set(this.quantities, this.selectedItems.length - 1, 1); 
+      this.$set(this.quantities, this.selectedItems.length - 1, 1);
       this.dialog.value = false;
+      
       console.log('selectedItems :', this.selectedItems);
     },
     removeItem(index) {
       this.selectedItems.splice(index, 1);
+
     },
 
     updateHjl(index, event) {
@@ -229,6 +259,8 @@ export default {
         this.transaction.keterangan = '';
         this.selectedItems = [];
         this.quantities = {};
+        this.isButtonEnabled = false;
+
     },
    
 
@@ -359,6 +391,28 @@ export default {
 .flex-item-button{
   margin-top: 15px;
 }
+
+.new-button {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  height: 25px;
+  width: 50px;
+  font-size: 15px;
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.new-button:disabled {
+  background-color: #cccccc93;
+  cursor: not-allowed
+}
+.new-button:hover:enabled {
+  background-color: green;
+}
+
+
 
 
 </style>
