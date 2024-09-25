@@ -134,8 +134,8 @@ export default {
             }));
         },
         availableItems() {
-          const existingItemIds = this.formattedItems.map(item => item.id);
-          return this.items.filter(item => !existingItemIds.includes(item.id));
+          const existingItemIds = this.formattedItems.map(item => item.kode);
+          return this.items.filter(item => !existingItemIds.includes(item.kode));
         }
        
     },
@@ -180,7 +180,7 @@ export default {
           try {
             const response = await api.get(`/m_item_cabang?kode_cabang=${this.kodeCabang}`);
             this.item = response.data;
-            // console.log('Items :', this.item);
+            console.log('Items :', this.item);
             // console.log('unit :', this.unit); // Tambahkan log ini
           } catch (error) {
             console.error('Error fetching unit:', error); // Tambahkan log ini

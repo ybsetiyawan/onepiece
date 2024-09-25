@@ -1,7 +1,7 @@
 <template>
   <v-container fill-height>
     <v-row justify="center" align="center">
-      <v-col cols="12" sm="8" md="4">
+      <v-col cols="10" sm="6" md="4">
         <v-card class="custom-card">
           <v-card-title class="text-h5">Login</v-card-title>
           <v-card-text>
@@ -10,14 +10,26 @@
                 label="Username"
                 prepend-icon="mdi-account"
                 v-model="loginData.username"
+                :disabled="isLoading"
               ></v-text-field>
               <v-text-field
                 label="Password"
                 prepend-icon="mdi-lock"
                 type="password"
                 v-model="loginData.password"
+                :disabled="isLoading"
               ></v-text-field>
-              <v-btn @click="login">Login</v-btn>
+              <v-btn color="blue" @click="login" :disabled="isLoading" class="flex align-center justify-center">
+                <v-progress-circular
+                  v-if="isLoading"
+                  indeterminate
+                  color="pink"
+                  size="26"
+                  class="mr-1"
+                ></v-progress-circular>
+                <span v-if="!isLoading">Login</span>
+                <span v-else >Loading...</span>
+              </v-btn>
             </v-form>
           </v-card-text>
         </v-card>
@@ -26,17 +38,18 @@
   </v-container>
 </template>
 
+
+
 <script>
 import api from '../services/api'
 import Swal from 'sweetalert2'
 import { mapActions } from 'vuex';
 
-
-
 export default {
   data() {
     return {
       valid: true,
+      isLoading: false, // State untuk loading
       loginData: {
         username: '',
         password: '',
@@ -46,59 +59,70 @@ export default {
   methods: {
     ...mapActions(['setUserData']),
     login() {
-      api.post('/login', this.loginData)
-        .then(response =>  {
-          this.loginDetail = response.data;
-          // Mengakses data dengan benar
-          this.setUserData({
-            username: this.loginDetail.data.username, // Ambil username dari response.data
-            id_role: this.loginDetail.data.id_role, // Ambil id_role dari response.data
-            nama_cabang: this.loginDetail.data.nama_cabang, // Ambil id_cabang dari response.data 
-            alamat_cabang: this.loginDetail.data.alamat_cabang,
-            nama: this.loginDetail.data.nama,
-            id_cabang: this.loginDetail.data.id_cabang,
-            user_id: this.loginDetail.data.user_id,
-            kode_cabang: this.loginDetail.data.kode_cabang
+      this.isLoading = true; // Memulai loading
+      console.log('Loading started');
+
+      // Simulasi loading dengan setTimeout
+      setTimeout(() => {
+        // Setelah 2 detik, proses login diteruskan
+        api.post('/login', this.loginData)
+          .then(response => {
+            this.loginDetail = response.data;
+            this.setUserData({
+              username: this.loginDetail.data.username,
+              id_role: this.loginDetail.data.id_role,
+              nama_cabang: this.loginDetail.data.nama_cabang,
+              alamat_cabang: this.loginDetail.data.alamat_cabang,
+              nama: this.loginDetail.data.nama,
+              id_cabang: this.loginDetail.data.id_cabang,
+              user_id: this.loginDetail.data.user_id,
+              kode_cabang: this.loginDetail.data.kode_cabang
+            });
+            Swal.fire({
+              position: 'top-end',
+              icon: 'success',
+              title: 'Login berhasil!',
+              showConfirmButton: false,
+              timer: 1500,
+              toast: true,
+              width: '400px',
+              background: '#B0BEC5',
+              color: '#fff',
+              padding: '16px',
+              iconColor: '#fff',
+            });
+            this.$router.push('/');
+          })
+          .catch(error => {
+            let message = 'Login gagal: Terjadi kesalahan';
+            if (error.response && error.response.data && error.response.data.message === 'Invalid credentials') {
+              message = 'Login gagal: Username atau password salah';
+            } else if (error.response && error.response.data) {
+              message = 'Login gagal: ' + error.response.data.message;
+            }
+            Swal.fire({
+              position: 'top-end',
+              icon: 'error',
+              showConfirmButton: false,
+              timer: 1500,
+              toast: true,
+              width: '400px',
+              background: '#EF9A9A',
+              color: '#fff',
+              padding: '16px',
+              iconColor: '#fff',
+              text: message
+            });
+          })
+          .finally(() => {
+            console.log('Loading ended');
+            this.isLoading = false; // Loading selesai
           });
-          Swal.fire({
-            position: 'top-end',
-            icon: 'success',
-            title: 'Login berhasil!',
-            showConfirmButton: false,
-            timer: 1500,
-            toast: true,
-            width: '400px',
-            background: '#B0BEC5',
-            color: '#fff',
-            padding: '16px',
-            iconColor: '#fff',
-          });
-          this.$router.push('/');
-        })
-        .catch(error => {
-          let message = 'Login gagal: Terjadi kesalahan';
-          if (error.response && error.response.data && error.response.data.message === 'Invalid credentials') {
-            message = 'Login gagal: Username atau password salah';
-          } else if (error.response && error.response.data) {
-            message = 'Login gagal: ' + error.response.data.message;
-          }
-          Swal.fire({
-            position: 'top-end',
-            icon: 'error',
-            showConfirmButton: false,
-            timer: 1500,
-            toast: true,
-            width: '400px',
-            background: '#EF9A9A',
-            color: '#fff',
-            padding: '16px',
-            iconColor: '#fff',
-            text: message
-          });
-        });
+      }, 1000); // Penundaan 2 detik
     }
   }
 }
+
 
 </script>
 

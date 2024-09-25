@@ -1,218 +1,237 @@
 <template>
   <v-app>
-  <div class="sales-container">
-    <div class="card">
+    <div class="sales-container">
+      <div class="card">
         <div class="flex-container">
-              <h4>Transaksi Penjualan Accesories</h4>
-              <v-spacer></v-spacer>
-              <button
-                type ="submit"
-                @click="buttonEnabled"
-                :disabled="isButtonEnabled" class="new-button">New</button>
+          <h4>Transaksi Penjualan Accesories</h4>
+          <v-spacer></v-spacer>
+          <button type="submit" @click="buttonEnabled" :disabled="isButtonEnabled" class="new-button">New</button>
         </div>
-      <div class="form-group flex-container"></div>
-      <v-divider/>
-      <div class="form-group flex-container">
-        <div>
-          <label for="tanggal">Tanggal:</label>
-          <input type="date" id="tanggal" class="input-field" v-model="transaction.tanggal" :disabled="!isButtonEnabled"/>
-        </div>
-        <v-divider vertical/>
-        <div class="flex-item">
-          <label for="keterangan">Keterangan:</label>
-          <input type="text" id="keterangan" autocomplete = "off" class="input-field" v-model="transaction.keterangan" :disabled="!isButtonEnabled"/>
-        </div>
-        <v-divider vertical/>
-        <div class="flex-item-button">
-          <!-- <label for="search"></label> -->
-          <v-btn  small elevation="7" class="input-field option-button" :disabled="!isButtonEnabled">
-              <v-icon @click="dialog.value = true" elevation="10" title="search">mdi-magnify</v-icon>
-          </v-btn>
-        </div>
-        <div class="flex-item-button">
-          <!-- <label for="save"></label> -->
-          <v-btn  small elevation="7" class="input-field option-button" :disabled="!isSaveButtonEnabled">
+        <div class="form-group flex-container"></div>
+        <v-divider />
+        <div class="form-group flex-container">
+          <div>
+            <label for="tanggal">Tanggal:</label>
+            <input type="date" id="tanggal" class="input-field" v-model="transaction.tanggal"
+              :disabled="!isButtonEnabled" />
+          </div>
+          <v-divider vertical />
+          <div class="flex-item">
+            <label for="keterangan">Keterangan:</label>
+            <input type="text" id="keterangan" autocomplete="off" class="input-field" v-model="transaction.keterangan"
+              :disabled="!isButtonEnabled" />
+          </div>
+          <v-divider vertical />
+          <div class="flex-item-button">
+            <!-- <label for="search"></label> -->
+            <v-btn small elevation="7" class="input-field option-button" :disabled="!isSearchButtonEnabled">
+              <v-icon @click="dialog.value = true" elevation="7" title="search">mdi-magnify</v-icon>
+            </v-btn>
+          </div>
+          <div class="flex-item-button">
+            <!-- <label for="save"></label> -->
+            <v-btn small elevation="7" class="input-field option-button" :disabled="!isSaveButtonEnabled">
               <v-icon @click="saveTransaction" elevation="7" title="save">mdi-content-save</v-icon>
-          </v-btn>
-        </div>
-        <div class="flex-item-button">
-          <!-- <label for="cancel"></label> -->
-          <v-btn  small elevation="7" class="input-field option-button" :disabled="!isSaveButtonEnabled">
+            </v-btn>
+          </div>
+          <div class="flex-item-button">
+            <!-- <label for="cancel"></label> -->
+            <v-btn small elevation="7" class="input-field option-button" :disabled="!isSaveButtonEnabled">
               <v-icon @click="resetForm" elevation="7" title="cancel">mdi-refresh</v-icon>
-          </v-btn>
+            </v-btn>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="card">
-      <h4>Item yang Dipilih</h4>
-      <v-simple-table class="small-table">
-        <thead>
-          <tr>
-            <th>Kode</th>
-            <th>Nama</th>
-            <th>Hpp</th>
-            <th>Hjl</th>
-            <th>Qty</th>
-            <th>Stok</th>
-            <th>Uom</th>
-            <th class="delete-column">-</th>
-          </tr>
-        </thead>
-        <tbody class="cart-body">
-          <tr v-for="(item, index) in selectedItems" :key="index">
-            <td>{{ item.kode }}</td>
-            <td>{{ item.nama }}</td>
-            <td>{{ item.hpp }}</td>
-            <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
-            <td contenteditable="true" @input="updateHjl(index, $event)" class="texthargajual">{{ item.hjl }}</td> <!-- Make hpp editable -->
-            <td>
-              <input class="qty" type="number" name="qty" id="qty" v-model="quantities[index]" @input="updateQuantity(index, $event.target.value)" min="1">
-            </td>
-            <td>{{ item.stok_akhir }}</td>
-            <td>{{ item.nama_satuan }}</td>
-            <td>
-              <v-icon 
-                @click="removeItem(index)"
-                color="red"
-                size="15px"
-              >mdi-delete</v-icon>
-            </td>
-          </tr>
-        </tbody>
-      </v-simple-table>
-     
-    </div>
-  </div>
+      <div class="card">
+        <h4>Item yang Dipilih</h4>
+        <v-simple-table class="small-table">
+          <thead>
+            <tr>
+              <th>Kode</th>
+              <th>Nama</th>
+              <th>Hpp</th>
+              <th>Hjl</th>
+              <th>Qty</th>
+              <th>Stok</th>
+              <th>Uom</th>
+              <th class="delete-column">-</th>
+            </tr>
+          </thead>
+          <tbody class="cart-body scrollable-table-body">
+            <tr v-for="(item, index) in selectedItems" :key="index">
+              <td>{{ item.kode }}</td>
+              <td>{{ item.nama }}</td>
+              <td>{{ item.hpp }}</td>
+              <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
+              <td contenteditable="true" @input="updateHjl(index, $event)" class="texthargajual">{{ item.hjl }}</td>
+              <!-- Make hpp editable -->
+              <td>
+                <input class="qty" type="number" name="qty" id="qty" v-model="quantities[index]"
+                  @input="updateQuantity(index, $event.target.value)" min="1">
+              </td>
+              <td>{{ item.stok_akhir }}</td>
+              <td>{{ item.nama_satuan }}</td>
+              <td>
+                <v-icon @click="removeItem(index)" color="red" size="20px">mdi-delete</v-icon>
+              </td>
+            </tr>
+          </tbody>
+        </v-simple-table>
 
-  <template>
-      <v-dialog
-        v-model="dialog.value"
-        transition="dialog-top-transition"
-        overlay-opacity="0.8"
-        max-width="1200"
-      >
-        
+      </div>
+    </div>
+    <template>
+      <v-dialog v-model="dialog.value" transition="dialog-top-transition" overlay-opacity="0.8" max-width="1200">
+
         <template v-slot:default="dialog">
           <v-card>
-            <v-toolbar
-              color="#78909C"
-              dark
-            >Daftar Barang</v-toolbar>
+            <v-toolbar color="#78909C" dark>Daftar Barang</v-toolbar>
             <v-form>
-             
-              <v-data-table
-                  :headers="headers"
-                  :items="formattedItems"
-                  :search="search"
-                  @click:row="addItem"
-                  :item-disabled="isItemIncart"
-                  item-value="kode"
-              />
+              <!-- Add search input -->
+              <v-text-field class="search" v-model="search" append-icon="mdi-magnify"
+                label="Cari Berdasarkan kode atau nama item disini" single-line hide-details></v-text-field>
+
+              <v-data-table :headers="headers" :items="formattedItems" :search="search" @click:row="addItem"
+                :item-disabled="isItemIncart" item-value="kode" />
             </v-form>
             <v-divider class="border-opacity-80"></v-divider>
             <v-card-actions class="justify-center">
-              <v-btn
-                text
-                @click="dialog.value = false"
-                color="error"
-                outlined
-              >Close</v-btn>
+              <v-btn text @click="dialog.value = false" color="error" outlined>Close</v-btn>
             </v-card-actions>
           </v-card>
         </template>
       </v-dialog>
     </template>
-</v-app>
+  </v-app>
 </template>
 
 <script>
 import { mapGetters } from 'vuex';
 import api from '@/services/api';
-// import Swal from 'sweetalert2';
+import Swal from 'sweetalert2';
 import mixins from '@/mixins/mixins';
 
 export default {
   mixins: [mixins],
   name: 'SalesV',
-  computed:{
+  computed: {
     ...mapGetters(['getUserData']),
-    kodeCabang(){
-        return this.getUserData.kode_cabang;
+    kodeCabang() {
+      return this.getUserData.kode_cabang;
     },
-    idCabang(){
-          return this.getUserData.id_cabang;
-        },
-        formattedItems() {
-            return this.item.map(item => ({
-                ...item,
-                hpp: this.priceFormat(item.hpp),
-            }));
-        },
-        isSaveButtonEnabled() {
-          return this.selectedItems.length > 0;
-        },
-       
+    idCabang() {
+      return this.getUserData.id_cabang;
+    },
+    formattedItems() {
+      return this.item
+        .filter(item => item.stok_akhir >= 1) // Filter items with stok 0
+        .map(item => ({
+          ...item,
+          hpp: this.priceFormat(item.hpp),
+          hjl: this.priceFormat(item.hjl),
+        }));
+    },
+    isSaveButtonEnabled() {
+      return this.selectedItems.length > 0;
+    },
+    isSearchButtonEnabled() {
+      return this.transaction.tanggal && this.transaction.keterangan;
+    },
+
   },
   data() {
     return {
-        headers: [
-                { text: 'Kode Item', value: 'kode' },
-                { text: 'Nama Item', value: 'nama' },
-                { text: 'Harga Beli', value: 'hpp' },
-                { text: 'Harga Jual', value: 'hjl' },
-                { text: 'Satuan', value: 'nama_satuan' },
-                { text: 'Item Type', value: 'jenis_item' },
-                { text: 'Stok Akhir', value: 'stok_akhir' }
-            ],
-            items: [
-                { text: 'Kode Item', value: 'kode' },
-                { text: 'Nama Item', value: 'nama' },
-            ],
-            selectedItems: [],
-            dialog: {
-                value: false
-            },
-            search: '',
-            item: [],
-            quantities: {},
-            transaction: {
-              // idCustomer: '',
-              // nama: '',
-              // kode: '',
-              tanggal: '',
-              keterangan: '',
-            },
-            noFaktur: '',
-            user: this.getUserData,
-            isButtonEnabled : false
-        };
-    },
-    
-    methods: {
-    
+      headers: [
+        { text: 'Kode Item', value: 'kode' },
+        { text: 'Nama Item', value: 'nama' },
+        { text: 'Harga Beli', value: 'hpp' },
+        { text: 'Harga Jual', value: 'hjl' },
+        { text: 'Satuan', value: 'nama_satuan' },
+        { text: 'Item Type', value: 'jenis_item' },
+        { text: 'Stok Akhir', value: 'stok_akhir' }
+      ],
+      items: [
+        { text: 'Kode Item', value: 'kode' },
+        { text: 'Nama Item', value: 'nama' },
+      ],
+      selectedItems: [],
+      dialog: {
+        value: false
+      },
+      search: '',
+      item: [],
+      quantities: {},
+      transaction: {
+        // idCustomer: '',
+        // nama: '',
+        // kode: '',
+        tanggal: '',
+        keterangan: '',
+      },
+      noFaktur: '',
+      user: this.getUserData,
+      isButtonEnabled: false
+    };
+  },
+
+  methods: {
+
+
     buttonEnabled() {
       this.isButtonEnabled = true;
     },
 
     isItemIncart(item) {
       const isInCart = this.selectedItems.some(cartItem => cartItem.kode === item.kode);
-    
-    // Log hasil pengecekan ke konsol untuk memastikan
-    console.log(`Checking if item is in cart: ${item.nama} (kode: ${item.kode}) => ${isInCart}`);
-    
-    return isInCart;
+      // Log hasil pengecekan ke konsol untuk memastikan
+      // console.log(`Checking if item is in cart: ${item.nama} (kode: ${item.kode}) => ${isInCart}`);
+      return isInCart;
     },
-   
-    
+
+    updateQuantity(index, value) {
+      const maxQty = this.selectedItems[index].stok_akhir;
+      if (value > maxQty) {
+        Swal.fire({
+          position: 'top',
+          icon: 'warning',
+          title: `Qty tidak bisa lebih dari stok ( ${maxQty} )`,
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+          width: '400px',
+          background: '#EF9A9A',
+          color: '#fff',
+          padding: '16px',
+          iconColor: '#fff',
+        });
+        value = maxQty;
+      }
+      this.$set(this.quantities, index, value);
+    },
+
+
     addItem(item) {
       if (this.isItemIncart(item)) {
-    return; // Mencegah penambahan item duplikat
-  }
+        Swal.fire({
+          position: 'top',
+          icon: 'warning',
+          title: 'Item sudah ada di cart',
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+          width: '400px',
+          background: '#EF9A9A',
+          color: '#fff',
+          padding: '16px',
+          iconColor: '#fff',
+        });
+        return; // Mencegah penambahan item duplikat
+      }
       this.selectedItems.push(item);
       this.$set(this.quantities, this.selectedItems.length - 1, 1);
       this.dialog.value = false;
-      
-      console.log('selectedItems :', this.selectedItems);
+
+      // console.log('selectedItems :', this.selectedItems);
     },
     removeItem(index) {
       this.selectedItems.splice(index, 1);
@@ -223,74 +242,115 @@ export default {
       const newValue = event.target.innerText.trim();
       // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
       this.selectedItems[index].hjl = newValue;
-  },
+    },
     async saveTransaction() {
-      if(!this.transaction.tanggal || !this.transaction.keterangan || !this.selectedItems === 0){
-        alert("Ada data yang belum lengkap");
-        return;
-      }
+      // if(!this.transaction.tanggal || !this.transaction.keterangan || !this.selectedItems === 0){
+      //   Swal.fire({
+      //               position: 'top',
+      //               icon: 'warning',
+      //               title: 'Ada data yang belum lengkap',
+      //               showConfirmButton: false,
+      //               timer: 1500,
+      //               toast: true,
+      //               width: '400px',
+      //               background: '#EF9A9A',
+      //               color: '#fff',
+      //               padding: '16px',
+      //               iconColor: '#fff',
+      //           });
+
+      //   return;
+      // }
 
       const transactionData = {
         tanggal: this.transaction.tanggal,
-        keterangan: this.transaction.keterangan,
+        keterangan: this.transaction.keterangan.toUpperCase(),
         detail: this.selectedItems.map((item, index) => ({
-                id_item_cabang: item.id_item,
-                qty: this.quantities[index],
-                harga: item.hjl,
-            }))
+          id_item_cabang: item.id,
+          qty: this.quantities[index],
+          harga: item.hjl.replace(/\./g, ''),
+        }))
       }
       try {
         const response = await api.post('/t_trans_in', transactionData);
         this.noFaktur = response.data.no_faktur;
-        console.log('no faktur:', this.noFaktur);
+        // console.log('no faktur:', this.noFaktur);
 
-        console.log('data transaksi:', transactionData)
-        alert('transaksi sukses');
+        // console.log('data transaksi:', transactionData)
+        Swal.fire({
+          position: 'top',
+          icon: 'success',
+          title: 'Transaksi Berhasil disimpan ',
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+          width: '400px',
+          background: 'green',
+          color: '#fff',
+          padding: '16px',
+          iconColor: '#fff',
+        });
+        setTimeout(() => {
+          location.reload();
+        }, 900);
       } catch (error) {
-        console.log('error simpan data transaksi', error);
+        // console.log('error simpan data transaksi', error);
+        Swal.fire({
+          position: 'top',
+          icon: 'warning',
+          title: 'Gagal menyimpan transaksi ',
+          showConfirmButton: false,
+          timer: 1500,
+          toast: true,
+          width: '400px',
+          background: '#EF9A9A',
+          color: '#fff',
+          padding: '16px',
+          iconColor: '#fff',
+        });
 
       }
-      
+
     },
 
     resetForm() {
-        // Reset the transaction object and selected items
-        this.transaction.tanggal = '';
-        this.transaction.keterangan = '';
-        this.selectedItems = [];
-        this.quantities = {};
-        this.isButtonEnabled = false;
+      // Reset the transaction object and selected items
+      this.transaction.tanggal = '';
+      this.transaction.keterangan = '';
+      this.selectedItems = [];
+      this.quantities = {};
+      this.isButtonEnabled = false;
 
     },
-   
 
 
-    
+
+
     async fetchItemCabang() {
-          try {
-            const response = await api.get(`/m_item_cabang?kode_cabang=${this.kodeCabang}`);
-            this.item = response.data;
-            // console.log('Items :', this.item);
-            // console.log('unit :', this.unit); // Tambahkan log ini
-          } catch (error) {
-            console.error('Error fetching unit:', error); // Tambahkan log ini
-          }
-        },
+      try {
+        const response = await api.get(`/m_item_cabang?kode_cabang=${this.kodeCabang}`);
+        this.item = response.data;
+        // console.log('Items :', this.item);
+        // console.log('unit :', this.unit); // Tambahkan log ini
+      } catch (error) {
+        console.error('Error fetching unit:', error); // Tambahkan log ini
+      }
+    },
 
     async fetchUser() {
-          try {
-            this.user = this.getUserData;
-            console.log('user :', this.user); // Tambahkan log ini
-          } catch (error) {
-            console.error('Error fetching unit:', error); // Tambahkan log ini
-          }
-        },
-    
+      try {
+        this.user = this.getUserData;
+        console.log('user :', this.user); // Tambahkan log ini
+      } catch (error) {
+        console.error('Error fetching unit:', error); // Tambahkan log ini
+      }
+    },
+
   },
 
   async created() {
-      await this.fetchItemCabang();
-      await this.fetchUser();
+    await this.fetchItemCabang();
+    await this.fetchUser();
   }
 
 };
@@ -316,7 +376,8 @@ export default {
   color: #333;
 }
 
-.item-list, .selected-items {
+.item-list,
+.selected-items {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -362,33 +423,42 @@ export default {
   display: block;
   margin-bottom: 5px;
   font-weight: bold;
-  font-size: 12px; /* Adjust the font size */
-  margin: 0; /* Adjust the margin */
+  font-size: 12px;
+  /* Adjust the font size */
+  margin: 0;
+  /* Adjust the margin */
 }
 
 .form-group input {
   width: 100%;
-  padding: 4px; /* Adjust the padding */
+  padding: 4px;
+  /* Adjust the padding */
   box-sizing: border-box;
   border: 1px solid #ccc;
   border-radius: 4px;
-  font-size: 12px; /* Adjust the font size */
-  height: 25px; /* Adjust the height */
+  font-size: 12px;
+  /* Adjust the font size */
+  height: 25px;
+  /* Adjust the height */
 }
 
-.input-field{
-    margin-top: 10px;
+.input-field {
+  margin-top: 10px;
 }
-.qty{
+
+.qty {
   max-width: 50px
 }
-.cart-body{
+
+.cart-body {
   font-size: 12px;
 }
-.texthargajual{
+
+.texthargajual {
   background-color: #dcdee0;
 }
-.flex-item-button{
+
+.flex-item-button {
   margin-top: 15px;
 }
 
@@ -408,11 +478,33 @@ export default {
   background-color: #cccccc93;
   cursor: not-allowed
 }
+
 .new-button:hover:enabled {
   background-color: green;
 }
 
+.search {
+  margin-left: 300px;
+  max-width: 700px;
 
+}
 
+.scrollable-table-body {
+  display: block;
+  max-height: 250px;
+  /* Adjust the height as needed */
+  overflow-y: auto;
+}
 
+/* Ensure the table headers align with the scrollable body */
+.small-table thead,
+.small-table tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.small-table tbody {
+  display: block;
+}
 </style>
