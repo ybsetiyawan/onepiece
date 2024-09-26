@@ -17,7 +17,8 @@ export default {
                 minimumFractionDigit: 0
             });
             return formater.format(value);
-        }
+        },
+
     },
 };
 

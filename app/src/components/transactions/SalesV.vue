@@ -102,6 +102,9 @@
         </template>
       </v-dialog>
     </template>
+    <div v-if="showPrint">
+      <SalesPrint :transaction="printTransaction" />
+    </div>
   </v-app>
 </template>
 
@@ -110,8 +113,12 @@ import { mapGetters } from 'vuex';
 import api from '@/services/api';
 import Swal from 'sweetalert2';
 import mixins from '@/mixins/mixins';
+import SalesPrint from '@/components/print/SalesPrint';
 
 export default {
+  components: {
+    SalesPrint
+  },
   mixins: [mixins],
   name: 'SalesV',
   computed: {
@@ -137,8 +144,8 @@ export default {
     isSearchButtonEnabled() {
       return this.transaction.tanggal && this.transaction.keterangan;
     },
-
   },
+  
   data() {
     return {
       headers: [
@@ -170,7 +177,10 @@ export default {
       },
       noFaktur: '',
       user: this.getUserData,
-      isButtonEnabled: false
+      isButtonEnabled: false,
+      printTransaction: null,
+      showPrint: false,
+      documentNumber: '',
     };
   },
 
@@ -231,7 +241,7 @@ export default {
       this.$set(this.quantities, this.selectedItems.length - 1, 1);
       this.dialog.value = false;
 
-      // console.log('selectedItems :', this.selectedItems);
+      console.log('selectedItems :', this.selectedItems);
     },
     removeItem(index) {
       this.selectedItems.splice(index, 1);
@@ -271,28 +281,46 @@ export default {
           harga: item.hjl.replace(/\./g, ''),
         }))
       }
+
       try {
         const response = await api.post('/t_trans_in', transactionData);
         this.noFaktur = response.data.no_faktur;
         // console.log('no faktur:', this.noFaktur);
 
+        this.printTransaction = {
+          documentNumber: this.noFaktur,
+          tanggal: this.transaction.tanggal,
+          keterangan: this.transaction.keterangan,
+          namaCabang: this.user.nama_cabang,
+          kodeCabang: this.user.kode_cabang,
+          alamatCabang: this.user.alamat_cabang,
+          namaUser: this.user.nama,
+          items: this.selectedItems.map((item, index) => ({
+            kode: item.kode,
+            nama: item.nama,
+            hjl: item.hjl,
+            qty: this.quantities[index],
+            total: item.hjl.replace(/\./g, '') * this.quantities[index]
+          })),
+          subtotal: this.selectedItems.reduce((acc, item, index) => acc + (item.hjl.replace(/\./g, '') * this.quantities[index]), 0)
+        };
+        console.log('data :', this.printTransaction);
+        console.log('data transaksi:', this.printTransaction.items);
+        this.showPrint = true;
+
         // console.log('data transaksi:', transactionData)
         Swal.fire({
-          position: 'top',
-          icon: 'success',
-          title: 'Transaksi Berhasil disimpan ',
-          showConfirmButton: false,
-          timer: 1500,
-          toast: true,
-          width: '400px',
-          background: 'green',
-          color: '#fff',
-          padding: '16px',
-          iconColor: '#fff',
-        });
-        setTimeout(() => {
-          location.reload();
-        }, 900);
+                position: 'top',
+                icon: 'success',
+                title: 'Transaksi berhasil disimpan',
+                showConfirmButton: false,
+                timer: 1500,
+                toast: true,
+                width: '400px',
+              })
+        // setTimeout(() => {
+        //   location.reload();
+        // }, 900);
       } catch (error) {
         // console.log('error simpan data transaksi', error);
         Swal.fire({
@@ -484,7 +512,8 @@ export default {
 }
 
 .search {
-  margin-left: 300px;
+  margin-left: 480px;
+  margin-bottom: 30px;
   max-width: 700px;
 
 }

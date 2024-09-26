@@ -108,18 +108,44 @@ const getItemCabang = (request, response) => {
     })
 }
 
-const addItemCabang = (request, response) => {
-    const { id_item, id_cabang, stok_awal, stok_akhir } = request.body
-    pool.query('INSERT INTO m_item_cabang (id_item, id_cabang, stok_awal, stok_akhir) VALUES ($1, $2, $3, $4)',
-        [id_item, id_cabang, stok_awal, stok_akhir], (error, result) => {
-            if(error) {
-                console.log(error);
-                response.status(500).send('Internal Server Error');;
-            }
-            response.status(201).send('Data berhasil ditambahkan');
-        }
-    ) 
+// const addItemCabang = (request, response) => {
+//     const { id_item, id_cabang, stok_awal, stok_akhir } = request.body
+//     pool.query('INSERT INTO m_item_cabang (id_item, id_cabang, stok_awal, stok_akhir) VALUES ($1, $2, $3, $4)',
+//         [id_item, id_cabang, stok_awal, stok_akhir], (error, result) => {
+//             if(error) {
+//                 console.log(error);
+//                 response.status(500).send('Internal Server Error');;
+//             }
+//             response.status(201).send('Data berhasil ditambahkan');
+//         }
+//     ) 
 
+// }
+
+const addItemCabang = async (request, response) => {
+    const { id_item, id_cabang, stok_awal, stok_akhir } = request.body;
+    const client = await pool.connect();
+    try {
+        await client.query('BEGIN');
+        // insert into m_item_cabang
+        const insertItemCabangQuery = 'INSERT INTO m_item_cabang (id_item, id_cabang, stok_awal, stok_akhir) VALUES ($1, $2, $3, $4) RETURNING id';
+        const result = await client.query(insertItemCabangQuery, [id_item, id_cabang, stok_awal, stok_akhir]);
+        const id_item_cabang = result.rows[0].id;
+
+        // insert into stok_harian
+        const insertStokHarianQuery = 'INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok) VALUES (CURRENT_DATE, $1, $2, $3, $4)';
+        await client.query(insertStokHarianQuery,[id_item_cabang, stok_awal, stok_akhir, stok_akhir - stok_awal]);
+
+        await client.query('COMMIT');
+        response.status(201).send('Data berhasil ditambahkan');
+        
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.log(error);
+        response.status(500).send('Internal Server Error');
+    } finally {
+        client.release();
+    }
 }
 
 
@@ -387,18 +413,20 @@ const t_trans_in =  async (request, response) => {
                 // Jika ada data di stok_harian, gunakan stok_akhir sebagai stok_awal
                 if (result.rows.length > 0) {
                     stokAwal = result.rows[0].stok_akhir;
-                } else {
-                    // Jika belum ada data di stok_harian, ambil stok_awal dari m_item_cabang
-                    const queryStokAwalItemCabang = `
-                        SELECT stok_akhir
-                        FROM m_item_cabang
-                        WHERE id = $1
-                    `;
-                    const resultItemCabang = await client.query(queryStokAwalItemCabang, [id_item_cabang]);
+                } 
 
-                    // Jika ada stok di m_item_cabang, gunakan stok_akhir sebagai stok_awal, jika tidak asumsikan 0
-                    stokAwal = resultItemCabang.rows.length > 0 ? resultItemCabang.rows[0].stok_akhir : 0;
-                }
+                // else {
+                //     // Jika belum ada data di stok_harian, ambil stok_awal dari m_item_cabang
+                //     const queryStokAwalItemCabang = `
+                //         SELECT stok_akhir
+                //         FROM m_item_cabang
+                //         WHERE id = $1
+                //     `;
+                //     const resultItemCabang = await client.query(queryStokAwalItemCabang, [id_item_cabang]);
+
+                //     // Jika ada stok di m_item_cabang, gunakan stok_akhir sebagai stok_awal, jika tidak asumsikan 0
+                //     stokAwal = resultItemCabang.rows.length > 0 ? resultItemCabang.rows[0].stok_akhir : 0;
+                // }
                 // hitung stok_akhir setelah perubahan
                 const perubahanStok = qty;  // Qty mewakili perubahan stok (positif atau negatif)
                 const stokAkhir = stokAwal - perubahanStok;  // Kurangi perubahan stok (qty) dari stok_awal
