@@ -122,6 +122,16 @@ const getItemCabang = (request, response) => {
 
 // }
 
+const formatDate = (date) => {
+    const pad = (n) => n < 10 ? '0' + n : n;
+    return date.getFullYear() + '-' +
+           pad(date.getMonth() + 1) + '-' +
+           pad(date.getDate()) + ' ' +
+           pad(date.getHours()) + ':' +
+           pad(date.getMinutes()) + ':' +
+           pad(date.getSeconds());
+};
+
 const addItemCabang = async (request, response) => {
     const { id_item, id_cabang, stok_awal, stok_akhir } = request.body;
     const client = await pool.connect();
@@ -133,8 +143,9 @@ const addItemCabang = async (request, response) => {
         const id_item_cabang = result.rows[0].id;
 
         // insert into stok_harian
-        const insertStokHarianQuery = 'INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok) VALUES (CURRENT_DATE, $1, $2, $3, $4)';
-        await client.query(insertStokHarianQuery,[id_item_cabang, stok_awal, stok_akhir, stok_akhir - stok_awal]);
+        const insertStokHarianQuery = 'INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok) VALUES ($1, $2, $3, $4, $5)';
+        const currentDate = new Date();
+        await client.query(insertStokHarianQuery,[formatDate(currentDate), id_item_cabang, stok_awal, stok_akhir, stok_akhir - stok_awal]);
 
         await client.query('COMMIT');
         response.status(201).send('Data berhasil ditambahkan');
@@ -378,6 +389,28 @@ const t_trans_in =  async (request, response) => {
         const client = await pool.connect()
         try {
             await client.query('BEGIN')
+
+            // Check stock availability
+            for (let i = 0; i < detail.length; i++) {
+                const { id_item_cabang, qty } = detail[i];
+                const queryCheckStock = `
+                    SELECT stok_akhir
+                    FROM stok_harian
+                    WHERE id_item_cabang = $1
+                    ORDER BY tanggal DESC
+                    LIMIT 1
+                `;
+                const resultCheckStock = await client.query(queryCheckStock, [id_item_cabang]);
+                const stokAkhir = resultCheckStock.rows.length > 0 ? resultCheckStock.rows[0].stok_akhir : 0;
+
+                if (stokAkhir < qty) {
+                    await client.query('ROLLBACK');
+                    return response.status(400).json({
+                        error: `Stok tidak mencukupi untuk item ini, coba cek stok barang`
+                    });
+                }
+            }
+
             const queryTransIn = 'INSERT INTO t_trans_in (tanggal, keterangan) VALUES ($1, $2) RETURNING id, no_faktur'
 
             const valuesTransIn = [tanggal, keterangan];
@@ -415,18 +448,6 @@ const t_trans_in =  async (request, response) => {
                     stokAwal = result.rows[0].stok_akhir;
                 } 
 
-                // else {
-                //     // Jika belum ada data di stok_harian, ambil stok_awal dari m_item_cabang
-                //     const queryStokAwalItemCabang = `
-                //         SELECT stok_akhir
-                //         FROM m_item_cabang
-                //         WHERE id = $1
-                //     `;
-                //     const resultItemCabang = await client.query(queryStokAwalItemCabang, [id_item_cabang]);
-
-                //     // Jika ada stok di m_item_cabang, gunakan stok_akhir sebagai stok_awal, jika tidak asumsikan 0
-                //     stokAwal = resultItemCabang.rows.length > 0 ? resultItemCabang.rows[0].stok_akhir : 0;
-                // }
                 // hitung stok_akhir setelah perubahan
                 const perubahanStok = qty;  // Qty mewakili perubahan stok (positif atau negatif)
                 const stokAkhir = stokAwal - perubahanStok;  // Kurangi perubahan stok (qty) dari stok_awal

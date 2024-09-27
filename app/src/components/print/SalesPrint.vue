@@ -13,19 +13,18 @@
                   <p class="center-invoice-code">{{ transaction.documentNumber }}</p>
                   <div class="flex-container">
                     <!-- <p><strong>Kode Customer:</strong> {{ transaction.kodeCustomer }}</p> -->
-                    <p class="right-details">{{ formatDate(transaction.tanggal) }}</p>
+                    <p class="flex-container">{{ formatDate(transaction.tanggal) }}</p>
+                    <p class="user-print"><strong>User :</strong> {{ transaction.namaUser }}</p>
                   </div>
-                  <!-- <div class="flex-container">
-                    <p><strong>Cabang :</strong> {{ transaction.namaCabang }}</p>
-                    <p class="flex-container"><strong>Alamat :</strong> {{ transaction.alamatCabang }}</p>
-                  </div> -->
                   <div class="flex-container">
-                    <p><strong>Cabang :</strong> {{ transaction.namaCabang }}</p>
+                  </div>
+                  <div class="flex-container">
+                    <p><strong>Cabang :</strong> {{ transaction.namaCabang }} </p>
                   </div>
                   <div class="flex-container">
                     <p><strong>Alamat :</strong> {{ transaction.alamatCabang }}</p>
                   </div>
-                  <p><strong>Keterangan:</strong> {{ transaction.keterangan }}</p>
+                  <p><strong>Keterangan :</strong> {{ transaction.keterangan }}</p>
                 </div>
                 <v-simple-table class="invoice-table">
                   <thead>
@@ -40,10 +39,10 @@
                   <tbody>
                     <tr v-for="(item, index) in transaction.items" :key="index">
                         <td>{{ item.kode }}</td>  
-                      <td>{{ item.nama }}</td>
-                      <td>{{ item.hjl }}</td>
-                      <td>{{ item.qty }}</td>
-                      <td>{{ item.total }}</td>
+                        <td>{{ item.nama }}</td>
+                        <td>{{ item.hjl }}</td>
+                        <td>{{ item.qty }}</td>
+                        <td>{{ item.total }}</td>
                     </tr>
                   </tbody>
                 </v-simple-table>
@@ -133,6 +132,16 @@
   margin: 5px 0;
 }
 
+.invoice-details .invoice-table{
+  font-family: 'Times New Roman', Times, serif;
+  font-size: 12px;
+}
+.user-print{
+  font-size: 8px;
+  text-align: right;
+}
+
+
 .invoice-table {
   margin-top: 20px;
   width: 100%;
@@ -151,12 +160,13 @@
   
 }
 
+
 .total {
   font-weight: bold;
   margin-top: 20px;
   color: rgb(118, 115, 115);
   text-align: right;
-  font-size: 1em;
+  font-size: 15px;
   border: 1px solid #ddd;
   padding: 10px;
   /* border-radius: 10px; */
@@ -178,9 +188,7 @@
   width: 50%;
 }
 
-.right-details {
-  text-align: right;
-}
+
 
 .flex-container {
   display: flex;
@@ -190,12 +198,17 @@
 @media print {
   @page {
     size: 21.59cm 14.00cm;
-    margin: 1cm; /* Add margin to avoid content touching the edges */
+    margin-top: 0cm; /* Adjust the top margin to move content up */
+    margin-right: 1cm;
+    margin-bottom: 1cm;
+    margin-left: 1cm;
+  
   }
   body {
     margin: 0;
     transform: scale(0.6); /* Adjust the scale as needed */
     transform-origin: top left;
+    margin-top: -5cm; /* Move content further up */
   }
   .invoice-container {
     width: 100%;

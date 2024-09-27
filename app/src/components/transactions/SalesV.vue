@@ -271,9 +271,10 @@ export default {
 
       //   return;
       // }
+      const currentTime = new Date().toTimeString().split(' ')[0];
 
       const transactionData = {
-        tanggal: this.transaction.tanggal,
+        tanggal: `${this.transaction.tanggal}T${currentTime}`,
         keterangan: this.transaction.keterangan.toUpperCase(),
         detail: this.selectedItems.map((item, index) => ({
           id_item_cabang: item.id,
@@ -304,37 +305,37 @@ export default {
           })),
           subtotal: this.selectedItems.reduce((acc, item, index) => acc + (item.hjl.replace(/\./g, '') * this.quantities[index]), 0)
         };
-        console.log('data :', this.printTransaction);
-        console.log('data transaksi:', this.printTransaction.items);
-        this.showPrint = true;
+        // console.log('data :', this.printTransaction);
+        // console.log('data transaksi:', this.printTransaction.items);
 
-        // console.log('data transaksi:', transactionData)
-        Swal.fire({
-                position: 'top',
-                icon: 'success',
-                title: 'Transaksi berhasil disimpan',
-                showConfirmButton: false,
-                timer: 1500,
-                toast: true,
-                width: '400px',
-              })
-        // setTimeout(() => {
-        //   location.reload();
-        // }, 900);
-      } catch (error) {
-        // console.log('error simpan data transaksi', error);
         Swal.fire({
           position: 'top',
-          icon: 'warning',
-          title: 'Gagal menyimpan transaksi ',
+          icon: 'success',
+          title: 'Transaksi berhasil disimpan',
           showConfirmButton: false,
           timer: 1500,
           toast: true,
           width: '400px',
+        }).then(() => {
+          this.showPrint = true;
+        });
+
+        // console.log('data transaksi:', transactionData)
+      } catch (error) {
+        const errorMessage = error.response.data.error;
+        console.log('error simpan data transaksi', errorMessage);
+        Swal.fire({
+          position: 'top',
+          icon: 'error',
+          title: errorMessage,
+          showConfirmButton: false,
+          timer: 2500,
+          toast: true,
+          width: '400px',
           background: '#EF9A9A',
           color: '#fff',
-          padding: '16px',
           iconColor: '#fff',
+          
         });
 
       }
@@ -368,7 +369,7 @@ export default {
     async fetchUser() {
       try {
         this.user = this.getUserData;
-        console.log('user :', this.user); // Tambahkan log ini
+        // console.log('user :', this.user); // Tambahkan log ini
       } catch (error) {
         console.error('Error fetching unit:', error); // Tambahkan log ini
       }

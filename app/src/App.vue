@@ -2,7 +2,7 @@
   <v-app>
     <v-navigation-drawer app style="background-color: #B0BEC5;">
     <!-- -->
-    <v-list dense>
+    <v-list dense v-if="username">
         <v-list-item
           v-for="item in items"
           :key="item.title"
@@ -243,6 +243,9 @@ export default {
       },
       { title: 'Transaction', icon: 'mdi-file-document', subItems: [
         { title: 'Sales', icon: 'mdi-sale-outline', link: '/sales' },
+      ] },
+      { title: 'Report', icon: 'mdi-chart-bar', subItems: [
+        { title: 'Sales', icon: 'mdi-trending-up', link: '/sales' },
       ] },
     ],
   }
