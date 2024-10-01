@@ -77,12 +77,52 @@ JOIN m_satuan s ON i.id_satuan = s.id
 JOIN m_jenis_item j ON i.id_satuan = j.id
 JOIN m_cabang nc ON ic.id_cabang = nc.id
 WHERE nc.kode = $1
-ORDER BY ic.id ASC;
-`
+ORDER BY ic.id ASC
+`;
+
+const getTransIn = `
+	SELECT 
+	c.kode AS kode_cabang,
+    c.nama AS nama_cabang,
+    t.no_faktur,
+    t.tanggal,
+    i.kode AS kode_item,
+	i.nama AS nama_item,
+	i.hpp,
+    td.harga,
+    td.qty,
+    td.subtotal,
+	s.nama AS nama_satuan,
+	j.nama AS jenis_item,
+    t.keterangan
+	
+FROM 
+    t_trans_in t
+JOIN 
+    t_trans_in_detail td ON t.id = td.id_transaksi
+JOIN 
+    m_item_cabang ic ON td.id_item_cabang = ic.id
+JOIN 
+    m_item i ON ic.id_item = i.id
+JOIN 
+    m_cabang c ON ic.id_cabang = c.id
+JOIN
+	m_satuan s ON i.id_satuan = s.id 
+JOIN
+	m_jenis_item j ON i.id_jenis_item = j.id
+WHERE
+	c.kode = $1
+AND
+	t.tanggal BETWEEN $2 AND $3
+ORDER BY		
+    t.tanggal DESC;
+	
+`;
 
 
 module.exports = {
     getUser,
     getUserLogin,
-	getItem, getItemCabang
+	getItem, getItemCabang,
+	getTransIn
 }

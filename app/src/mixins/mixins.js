@@ -19,6 +19,14 @@ export default {
             return formater.format(value);
         },
 
+        dateFormat(value) {
+            const date = new Date(value);
+            const options = { year: 'numeric', month: 'numeric', day: 'numeric' };
+            return date.toLocaleDateString('id-ID', options);
+        },
+
+
+
     },
 };
 

@@ -245,7 +245,7 @@ export default {
         { title: 'Sales', icon: 'mdi-sale-outline', link: '/sales' },
       ] },
       { title: 'Report', icon: 'mdi-chart-bar', subItems: [
-        { title: 'Sales', icon: 'mdi-trending-up', link: '/sales' },
+        { title: 'Sales', icon: 'mdi-trending-up', link: '/reportsales' },
       ] },
     ],
   }

@@ -323,7 +323,7 @@ export default {
         // console.log('data transaksi:', transactionData)
       } catch (error) {
         const errorMessage = error.response.data.error;
-        console.log('error simpan data transaksi', errorMessage);
+        // console.log('error simpan data transaksi', errorMessage);
         Swal.fire({
           position: 'top',
           icon: 'error',

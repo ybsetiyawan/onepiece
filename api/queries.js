@@ -488,6 +488,32 @@ const t_trans_in =  async (request, response) => {
     }
 }
 
+// const getTransIn = (request, response) => {
+//     const { kode_cabang, startDate, endDate } = request.query;
+
+    
+//     pool.query(pgqueries.getTransIn, [kode_cabang, startDate, endDate], (error, results) => {
+//         if (error) {
+//             console.error('Query error:', error);
+//             return response.status(500).send('Internal Server Error');
+//         }
+//         response.status(200).json(results.rows);
+//     });
+// };
+
+const getTransIn = async (request, response) => {
+    const { kode_cabang, startDate, endDate } = request.query;
+
+    try {
+        const results = await pool.query(pgqueries.getTransIn, [kode_cabang, startDate, endDate]);
+        response.status(200).json(results.rows);
+    } catch (error) {
+        console.error('Query error:', error);
+        response.status(500).send('Internal Server Error');
+    }
+};
+
+
 
 
 module.exports = {
@@ -499,5 +525,6 @@ module.exports = {
     getItemCabang, addItemCabang,
     getItem, addItem, editItem,
     login,
-    t_trans_in
+    t_trans_in,
+    getTransIn
 }
