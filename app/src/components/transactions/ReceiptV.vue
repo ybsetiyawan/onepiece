@@ -3,7 +3,7 @@
     <div class="sales-container">
       <div class="card">
         <div class="flex-container">
-          <h4>Transaksi Penjualan</h4>
+          <h4>Transaksi Penerimaan Barang</h4>
           <v-spacer></v-spacer>
           <button type="submit" @click="buttonEnabled" :disabled="isButtonEnabled" class="new-button">New</button>
         </div>
@@ -49,10 +49,10 @@
             <tr>
               <th>Kode</th>
               <th>Nama</th>
-              <th>Hpp</th>
-              <th>Hjl</th>
+              <!-- <th>Hpp</th> -->
+              <!-- <th>Hjl</th> -->
               <th>Qty</th>
-              <th>Stok</th>
+              <!-- <th>Stok</th> -->
               <th>Uom</th>
               <th class="delete-column">-</th>
             </tr>
@@ -61,15 +61,15 @@
             <tr v-for="(item, index) in selectedItems" :key="index">
               <td>{{ item.kode }}</td>
               <td>{{ item.nama }}</td>
-              <td>{{ item.hpp }}</td>
+              <!-- <td>{{ item.hpp }}</td> -->
               <!-- <td contenteditable="true" class="warning">{{ item.hpp }}</td> -->
-              <td contenteditable="true" @input="updateHjl(index, $event)" class="texthargajual">{{ item.hjl }}</td>
+              <!-- <td contenteditable="true" @input="updateHjl(index, $event)" class="texthargajual">{{ item.hjl }}</td> -->
               <!-- Make hpp editable -->
               <td>
                 <input class="qty" type="number" name="qty" id="qty" v-model="quantities[index]"
                   @input="updateQuantity(index, $event.target.value)" min="1">
               </td>
-              <td>{{ item.stok_akhir }}</td>
+              <!-- <td>{{ item.stok_akhir }}</td> -->
               <td>{{ item.nama_satuan }}</td>
               <td>
                 <v-icon @click="removeItem(index)" color="red" size="20px">mdi-delete</v-icon>
@@ -131,7 +131,7 @@ export default {
     },
     formattedItems() {
       return this.item
-        .filter(item => item.stok_akhir >= 1) // Filter items with stok 0
+        // .filter(item => item.stok_akhir >= 1) // Filter items with stok 0
         .map(item => ({
           ...item,
           hpp: this.priceFormat(item.hpp),
@@ -157,10 +157,7 @@ export default {
         { text: 'Item Type', value: 'jenis_item' },
         { text: 'Stok Akhir', value: 'stok_akhir' }
       ],
-      items: [
-        { text: 'Kode Item', value: 'kode' },
-        { text: 'Nama Item', value: 'nama' },
-      ],
+      items: [],
       selectedItems: [],
       dialog: {
         value: false
@@ -175,7 +172,7 @@ export default {
         tanggal: '',
         keterangan: '',
       },
-      noFaktur: '',
+      docno: '',
       user: this.getUserData,
       isButtonEnabled: false,
       printTransaction: null,
@@ -199,24 +196,13 @@ export default {
     },
 
     updateQuantity(index, value) {
-      const maxQty = this.selectedItems[index].stok_akhir;
-      if (value > maxQty) {
-        Swal.fire({
-          position: 'top',
-          icon: 'warning',
-          title: `Qty tidak bisa lebih dari stok ( ${maxQty} )`,
-          showConfirmButton: false,
-          timer: 1500,
-          toast: true,
-          width: '400px',
-          background: '#EF9A9A',
-          color: '#fff',
-          padding: '16px',
-          iconColor: '#fff',
-        });
-        value = maxQty;
+      const numericValue = parseFloat(value);
+      if (!isNaN(numericValue)) {
+        this.quantities[index] = numericValue;
+      } else {
+        // Handle the case where the value is not a number
       }
-      this.$set(this.quantities, index, value);
+     
     },
 
 
@@ -248,11 +234,11 @@ export default {
 
     },
 
-    updateHjl(index, event) {
-      const newValue = event.target.innerText.trim();
-      // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
-      this.selectedItems[index].hjl = newValue;
-    },
+    // updateHjl(index, event) {
+    //   const newValue = event.target.innerText.trim();
+    //   // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
+    //   this.selectedItems[index].hjl = newValue;
+    // },
     async saveTransaction() {
       // if(!this.transaction.tanggal || !this.transaction.keterangan || !this.selectedItems === 0){
       //   Swal.fire({
@@ -279,32 +265,34 @@ export default {
         detail: this.selectedItems.map((item, index) => ({
           id_item_cabang: item.id,
           qty: this.quantities[index],
-          harga: item.hjl.replace(/\./g, ''),
+          // harga: item.hjl.replace(/\./g, ''),
         }))
       }
 
       try {
-        const response = await api.post('/t_trans_in', transactionData);
-        this.noFaktur = response.data.no_faktur;
+        // Log the quantities before saving
+        console.log('Quantities before saving:', this.quantities);
+        const response = await api.post('/t_trans_receipt', transactionData);
+        this.docno = response.data.docno;
         // console.log('no faktur:', this.noFaktur);
 
-        this.printTransaction = {
-          documentNumber: this.noFaktur,
-          tanggal: this.transaction.tanggal,
-          keterangan: this.transaction.keterangan,
-          namaCabang: this.user.nama_cabang,
-          kodeCabang: this.user.kode_cabang,
-          alamatCabang: this.user.alamat_cabang,
-          namaUser: this.user.nama,
-          items: this.selectedItems.map((item, index) => ({
-            kode: item.kode,
-            nama: item.nama,
-            hjl: item.hjl,
-            qty: this.quantities[index],
-            total: item.hjl.replace(/\./g, '') * this.quantities[index]
-          })),
-          subtotal: this.selectedItems.reduce((acc, item, index) => acc + (item.hjl.replace(/\./g, '') * this.quantities[index]), 0)
-        };
+        // this.printTransaction = {
+        //   documentNumber: this.noFaktur,
+        //   tanggal: this.transaction.tanggal,
+        //   keterangan: this.transaction.keterangan,
+        //   namaCabang: this.user.nama_cabang,
+        //   kodeCabang: this.user.kode_cabang,
+        //   alamatCabang: this.user.alamat_cabang,
+        //   namaUser: this.user.nama,
+        //   items: this.selectedItems.map((item, index) => ({
+        //     kode: item.kode,
+        //     nama: item.nama,
+        //     hjl: item.hjl,
+        //     qty: this.quantities[index],
+        //     total: item.hjl.replace(/\./g, '') * this.quantities[index]
+        //   })),
+        //   subtotal: this.selectedItems.reduce((acc, item, index) => acc + (item.hjl.replace(/\./g, '') * this.quantities[index]), 0)
+        // };
         // console.log('data :', this.printTransaction);
         // console.log('data transaksi:', this.printTransaction.items);
 
@@ -317,7 +305,7 @@ export default {
           toast: true,
           width: '400px',
         }).then(() => {
-          this.showPrint = true;
+          // this.showPrint = true;
         });
 
         // console.log('data transaksi:', transactionData)

@@ -26,14 +26,14 @@
         <template v-slot:default="dialog">
           <v-card>
             <v-toolbar color="#78909C" dark >
-              {{ isAdd ? 'Add Item' : 'Edit Item' }}
+              Add Item Branch
             </v-toolbar>
             <v-form>
               <v-card-text>
                 <v-row>
-                  <v-col cols="4">
+                  <v-col cols="12">
                     <v-select
-                    label="Item Kode"
+                    label="Select Item"
                     v-model="edit.kode"
                     :items="availableItems"
                     item-value="id"
@@ -43,19 +43,19 @@
                    >
                    <template v-slot:item="data">
                     <div class="small-item">
-                      {{ data.item.kode }} - {{ data.item.nama }}
+                      {{ data.item.kode }} - {{ data.item.nama }} - {{ priceFormat(data.item.hpp) }}
                     </div>
                    </template>
                     </v-select>
                   </v-col>
                   
-                  <v-col cols="4">
+                  <!-- <v-col cols="4">
                     <v-text-field
                     label="Stok Awal"
                     v-model="edit.stok_awal"
                     required
                     dense
-                    :disabled="!isAdd"
+                    disabled
 
                   >
                   </v-text-field>
@@ -66,22 +66,9 @@
                     v-model="edit.stok_akhir"
                     required
                     dense
-                    :disabled="!isAdd"
-                  >
-                  </v-text-field>
-                  </v-col>
-                  
-                  <!-- <v-col cols="4">
-                    <v-text-field
-                    label="Cabang"
-                    :value="kodeCabang"
-                    required
-                    dense
-                    disabled
                   >
                   </v-text-field>
                   </v-col> -->
-                  
                 </v-row>
               </v-card-text>
             </v-form>
@@ -89,11 +76,11 @@
             <v-card-actions class="justify-center">
               <v-btn
                 text
-                @click="isAdd ? save() : update()"
+                @click="save"
                 color="success"
                 outlined
               >
-                {{ isAdd ? 'Add' : 'Update' }}
+              Add
               </v-btn>
               <v-btn
                 text
@@ -180,7 +167,7 @@ export default {
           try {
             const response = await api.get(`/m_item_cabang?kode_cabang=${this.kodeCabang}`);
             this.item = response.data;
-            console.log('Items :', this.item);
+            // console.log('Items :', this.item);
             // console.log('unit :', this.unit); // Tambahkan log ini
           } catch (error) {
             console.error('Error fetching unit:', error); // Tambahkan log ini
@@ -228,13 +215,13 @@ export default {
         // },
         add() {
             this.dialog.value = true;
-            this.edit = {
-                nama: '',
-            };
+            // this.edit = {
+            //     nama: '',
+            // };
             this.isAdd = true;
         },
         async save() {
-          if (this.validateInputs(this.edit, ['kode', 'stok_awal', 'stok_akhir'])) { // Menggunakan metode baru
+          if (this.validateInputs(this.edit, ['kode'])) { // Menggunakan metode baru
               Swal.fire({
                 position: 'top',
                 icon: 'warning',
@@ -252,8 +239,8 @@ export default {
             }
             await api.post('/m_item_cabang', {
               id_item: this.edit.kode,
-              stok_awal: this.edit.stok_awal,
-              stok_akhir: this.edit.stok_akhir,
+              stok_awal: 0,
+              stok_akhir: 0,
               id_cabang: this.idCabang,
             })
             .then(() => {
@@ -275,47 +262,47 @@ export default {
               alert('Add Failed' + error)
             })
         },
-        update() {
-            this.isAdd = false;
-            if (this.validateInputs(this.edit, ['kode', 'stok_awal', 'stok_akhir'])) { // Menggunakan metode baru
-                Swal.fire({
-                    position: 'top',
-                    icon: 'warning',
-                    title: 'Ada inputan yang kosong',
-                    showConfirmButton: false,
-                    timer: 1500,
-                    toast: true,
-                    width: '400px',
-                    background: '#EF9A9A',
-                    color: '#fff',
-                    padding: '16px',
-                    iconColor: '#fff',
-                });
-                return;
-            }
-            // Tidak perlu memeriksa isUnique saat memperbarui  
-            api.put(`/m_satuan/${this.edit.id}`, {
-              nama: this.edit.nama.toUpperCase(),
-            })
-            .then(() => {
-              Swal.fire({
-                position: 'top',
-                icon: 'success',
-                title: 'Update Success',
-                showConfirmButton: false,
-                timer: 1500,
-                toast: true,
-                width: '400px',
-              })
-              this.dialog.value = false; // Tutup dialog setelah pembaruan
-              setTimeout(() => {
-                location.reload();
-              }, 900);
-            })
-            .catch(error => {
-              alert('Update Failed' + error)
-            })
-        },
+        // update() {
+        //     this.isAdd = false;
+        //     if (this.validateInputs(this.edit, ['kode', 'stok_awal', 'stok_akhir'])) { // Menggunakan metode baru
+        //         Swal.fire({
+        //             position: 'top',
+        //             icon: 'warning',
+        //             title: 'Ada inputan yang kosong',
+        //             showConfirmButton: false,
+        //             timer: 1500,
+        //             toast: true,
+        //             width: '400px',
+        //             background: '#EF9A9A',
+        //             color: '#fff',
+        //             padding: '16px',
+        //             iconColor: '#fff',
+        //         });
+        //         return;
+        //     }
+        //     // Tidak perlu memeriksa isUnique saat memperbarui  
+        //     api.put(`/m_satuan/${this.edit.id}`, {
+        //       nama: this.edit.nama.toUpperCase(),
+        //     })
+        //     .then(() => {
+        //       Swal.fire({
+        //         position: 'top',
+        //         icon: 'success',
+        //         title: 'Update Success',
+        //         showConfirmButton: false,
+        //         timer: 1500,
+        //         toast: true,
+        //         width: '400px',
+        //       })
+        //       this.dialog.value = false; // Tutup dialog setelah pembaruan
+        //       setTimeout(() => {
+        //         location.reload();
+        //       }, 900);
+        //     })
+        //     .catch(error => {
+        //       alert('Update Failed' + error)
+        //     })
+        // },
     },
     async created() {
       await this.fetchUnit();

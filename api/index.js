@@ -65,6 +65,11 @@ app.get('/reportsales', async (req, res) => {
   await db.getTransIn(req, res)
 });
 
+// t_trans_receipt
+app.post('/t_trans_receipt', async (req, res)=> {
+  await db.t_trans_receipt(req, res)
+})
+
 
 
 

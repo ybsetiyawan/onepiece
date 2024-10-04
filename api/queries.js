@@ -143,9 +143,9 @@ const addItemCabang = async (request, response) => {
         const id_item_cabang = result.rows[0].id;
 
         // insert into stok_harian
-        const insertStokHarianQuery = 'INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok) VALUES ($1, $2, $3, $4, $5)';
+        const insertStokHarianQuery = 'INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok, transtp, transfrom) VALUES ($1, $2, $3, $4, $5, $6, $7)';
         const currentDate = new Date();
-        await client.query(insertStokHarianQuery,[formatDate(currentDate), id_item_cabang, stok_awal, stok_akhir, stok_akhir - stok_awal]);
+        await client.query(insertStokHarianQuery,[formatDate(currentDate), id_item_cabang, stok_awal, stok_akhir, stok_akhir - stok_awal, 'NULL', 'NULL']);
 
         await client.query('COMMIT');
         response.status(201).send('Data berhasil ditambahkan');
@@ -453,8 +453,8 @@ const t_trans_in =  async (request, response) => {
                 const stokAkhir = stokAwal - perubahanStok;  // Kurangi perubahan stok (qty) dari stok_awal
 
                 const queryStokHarian = `
-                    INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok)
-                    VALUES ($1, $2, $3, $4, $5)
+                    INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok, transtp, transfrom)
+                    VALUES ($1, $2, $3, $4, $5, 'OUT', 'SLS')
                 `;
                 const valuesStokHarian = [tanggal, id_item_cabang, stokAwal, stokAkhir, perubahanStok];
                 await client.query(queryStokHarian, valuesStokHarian);
@@ -488,18 +488,7 @@ const t_trans_in =  async (request, response) => {
     }
 }
 
-// const getTransIn = (request, response) => {
-//     const { kode_cabang, startDate, endDate } = request.query;
 
-    
-//     pool.query(pgqueries.getTransIn, [kode_cabang, startDate, endDate], (error, results) => {
-//         if (error) {
-//             console.error('Query error:', error);
-//             return response.status(500).send('Internal Server Error');
-//         }
-//         response.status(200).json(results.rows);
-//     });
-// };
 
 const getTransIn = async (request, response) => {
     const { kode_cabang, startDate, endDate } = request.query;
@@ -514,6 +503,116 @@ const getTransIn = async (request, response) => {
 };
 
 
+const t_trans_receipt =  async (request, response) => {
+    try {
+        const { tanggal,keterangan, detail } = request.body;
+        if (!Array.isArray(detail)) {
+            return response.status(400).json({
+                error: 'Detail bukan array'
+            });
+        }
+        const client = await pool.connect()
+        try {
+            await client.query('BEGIN')
+
+            // Check stock availability
+            // for (let i = 0; i < detail.length; i++) {
+            //     const { id_item_cabang, qty } = detail[i];
+            //     const queryCheckStock = `
+            //         SELECT stok_akhir
+            //         FROM stok_harian
+            //         WHERE id_item_cabang = $1
+            //         ORDER BY tanggal DESC
+            //         LIMIT 1
+            //     `;
+            //     const resultCheckStock = await client.query(queryCheckStock, [id_item_cabang]);
+            //     const stokAkhir = resultCheckStock.rows.length > 0 ? resultCheckStock.rows[0].stok_akhir : 0;
+
+            //     if (stokAkhir < qty) {
+            //         await client.query('ROLLBACK');
+            //         return response.status(400).json({
+            //             error: `Stok tidak mencukupi untuk item ini, coba cek stok barang`
+            //         });
+            //     }
+            // }
+
+            const queryTrans = 'INSERT INTO t_receipt (tanggal, keterangan) VALUES ($1, $2) RETURNING id, docno'
+
+            const valuesTrans = [tanggal, keterangan];
+            const resultTrans = await client.query(queryTrans, valuesTrans);
+            const transId = resultTrans.rows[0].id;
+            let docno = resultTrans.rows[0].docno;
+
+            docno = `${transId.toString().padStart(5, '0')}`;
+            await client.query('UPDATE t_receipt set docno = $1 where id = $2', [docno, transId])
+
+            for (let i = 0; i < detail.length; i++) {
+                const {id_item_cabang, qty } = detail[i];
+
+                const queryDetail = `
+                    INSERT INTO t_receipt_detail (id_transaksi, id_item_cabang, qty)
+                    VALUES ($1, $2, $3)`;
+                const valuesDetail = [docno, id_item_cabang, qty];
+                await client.query(queryDetail, valuesDetail)
+
+                const queryLastStok = `
+                    SELECT stok_akhir
+                    FROM stok_harian
+                    WHERE id_item_cabang = $1
+                    ORDER BY tanggal DESC
+                    LIMIT 1
+                `;
+
+                const result = await client.query(queryLastStok, [id_item_cabang]);
+
+                let stokAwal;
+
+                // Jika ada data di stok_harian, gunakan stok_akhir sebagai stok_awal
+                if (result.rows.length > 0) {
+                    stokAwal = result.rows[0].stok_akhir;
+                } 
+
+                // hitung stok_akhir setelah perubahan
+                const perubahanStok = qty;  // Qty mewakili perubahan stok (positif atau negatif)
+                const stokAkhir = stokAwal + perubahanStok;  // tambah perubahan stok (qty) dari stok_awal
+
+                const queryStokHarian = `
+                    INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok, transtp, transfrom)
+                    VALUES ($1, $2, $3, $4, $5, $6, $7)
+                `;
+                const valuesStokHarian = [tanggal, id_item_cabang, stokAwal, stokAkhir, perubahanStok, 'IN','RECEIPT'];
+                await client.query(queryStokHarian, valuesStokHarian);
+
+                const queryUpdateStok = `
+                    UPDATE m_item_cabang
+                    SET stok_awal = stok_awal + $1,
+                    stok_akhir = stok_akhir + $1
+                    WHERE id = $2`;
+                    
+                const valuesUpdateStok = [qty, id_item_cabang];
+                await client.query(queryUpdateStok, valuesUpdateStok);
+
+            }
+            await client.query('COMMIT');
+            response.status(200).json({
+                message: 'Transaksi berhasil ditambahkan',
+                docno: docno
+            });
+        } catch (error) {
+            await client.query('ROLLBACK');
+            console.error('Error:', error);
+            throw error;
+        } finally {
+            client.release()
+        } 
+
+    } catch (error) {
+        console.error('Error saat menyimpan transaksi:', error); // Log error detail
+        response.status(500).json({ error: 'Gagal menyimpan transaksi' });
+    }
+}
+
+
 
 
 module.exports = {
@@ -525,6 +624,6 @@ module.exports = {
     getItemCabang, addItemCabang,
     getItem, addItem, editItem,
     login,
-    t_trans_in,
-    getTransIn
+    t_trans_in, getTransIn,
+    t_trans_receipt,
 }

@@ -10,6 +10,7 @@ import ItemV from '../components/master/ItemV.vue'
 import SalesV from '../components/transactions/SalesV.vue'
 import store from '../store'
 import ItemBranchV from '@/components/master/ItemBranchV.vue'
+import ReceiptV from '@/components/transactions/ReceiptV.vue'
 import SalesReport from '@/components/report/SalesReport.vue'
 Vue.use(VueRouter)
 
@@ -69,6 +70,11 @@ const routes = [
     path: '/sales',
     name: 'sales',
     component: SalesV
+  },
+  {
+    path: '/receipt',
+    name: 'receipt',
+    component: ReceiptV
   },
   {
     path: '/reportsales',

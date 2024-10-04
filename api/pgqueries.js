@@ -115,7 +115,7 @@ WHERE
 AND
 	t.tanggal BETWEEN $2 AND $3
 ORDER BY		
-    t.tanggal DESC;
+    t.tanggal ASC;
 	
 `;
 

@@ -98,7 +98,7 @@ export default {
         if (response.data.length === 0) {
 
           Swal.fire({
-          position: 'top',
+          position: 'center',
           icon: 'error',
           title: 'Tidak ada data dalam rentang tanggal yang dipilih.',
           showConfirmButton: false,

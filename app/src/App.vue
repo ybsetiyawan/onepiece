@@ -242,7 +242,8 @@ export default {
         ]
       },
       { title: 'Transaction', icon: 'mdi-file-document', subItems: [
-        { title: 'Sales', icon: 'mdi-sale-outline', link: '/sales' },
+        { title: 'Sales', icon: 'mdi-sort-bool-descending-variant', link: '/sales' },
+        { title: 'Receipt', icon: 'mdi-sort-bool-ascending-variant', link: '/receipt' },
       ] },
       { title: 'Report', icon: 'mdi-chart-bar', subItems: [
         { title: 'Sales', icon: 'mdi-trending-up', link: '/reportsales' },
