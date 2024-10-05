@@ -103,7 +103,7 @@
       </v-dialog>
     </template>
     <div v-if="showPrint">
-      <SalesPrint :transaction="printTransaction" />
+      <ReceiptPrint :transaction="printTransaction" />
     </div>
   </v-app>
 </template>
@@ -113,14 +113,14 @@ import { mapGetters } from 'vuex';
 import api from '@/services/api';
 import Swal from 'sweetalert2';
 import mixins from '@/mixins/mixins';
-import SalesPrint from '@/components/print/SalesPrint';
+import ReceiptPrint from '@/components/print/ReceiptPrint';
 
 export default {
   components: {
-    SalesPrint
+    ReceiptPrint
   },
   mixins: [mixins],
-  name: 'SalesV',
+  name: 'ReceiptV',
   computed: {
     ...mapGetters(['getUserData']),
     kodeCabang() {
@@ -196,14 +196,9 @@ export default {
     },
 
     updateQuantity(index, value) {
-      const numericValue = parseFloat(value);
-      if (!isNaN(numericValue)) {
-        this.quantities[index] = numericValue;
-      } else {
-        // Handle the case where the value is not a number
-      }
-     
+      this.$set(this.quantities, index, value);
     },
+
 
 
     addItem(item) {
@@ -234,11 +229,6 @@ export default {
 
     },
 
-    // updateHjl(index, event) {
-    //   const newValue = event.target.innerText.trim();
-    //   // console.log(`Updating hpp for item at index ${index} to ${newValue}`);
-    //   this.selectedItems[index].hjl = newValue;
-    // },
     async saveTransaction() {
       // if(!this.transaction.tanggal || !this.transaction.keterangan || !this.selectedItems === 0){
       //   Swal.fire({
@@ -264,37 +254,37 @@ export default {
         keterangan: this.transaction.keterangan.toUpperCase(),
         detail: this.selectedItems.map((item, index) => ({
           id_item_cabang: item.id,
-          qty: this.quantities[index],
-          // harga: item.hjl.replace(/\./g, ''),
+          qty: parseFloat(this.quantities[index]),
         }))
       }
 
       try {
         // Log the quantities before saving
-        console.log('Quantities before saving:', this.quantities);
+        // console.log('Quantities before saving:', this.quantities);
         const response = await api.post('/t_trans_receipt', transactionData);
         this.docno = response.data.docno;
         // console.log('no faktur:', this.noFaktur);
 
-        // this.printTransaction = {
-        //   documentNumber: this.noFaktur,
-        //   tanggal: this.transaction.tanggal,
-        //   keterangan: this.transaction.keterangan,
-        //   namaCabang: this.user.nama_cabang,
-        //   kodeCabang: this.user.kode_cabang,
-        //   alamatCabang: this.user.alamat_cabang,
-        //   namaUser: this.user.nama,
-        //   items: this.selectedItems.map((item, index) => ({
-        //     kode: item.kode,
-        //     nama: item.nama,
-        //     hjl: item.hjl,
-        //     qty: this.quantities[index],
-        //     total: item.hjl.replace(/\./g, '') * this.quantities[index]
-        //   })),
-        //   subtotal: this.selectedItems.reduce((acc, item, index) => acc + (item.hjl.replace(/\./g, '') * this.quantities[index]), 0)
-        // };
-        // console.log('data :', this.printTransaction);
-        // console.log('data transaksi:', this.printTransaction.items);
+        this.printTransaction = {
+          documentNumber: this.docno,
+          tanggal: this.transaction.tanggal,
+          keterangan: this.transaction.keterangan,
+          namaCabang: this.user.nama_cabang,
+          kodeCabang: this.user.kode_cabang,
+          alamatCabang: this.user.alamat_cabang,
+          namaUser: this.user.nama,
+          items: this.selectedItems.map((item, index) => ({
+            kode: item.kode,
+            nama: item.nama,
+            // hjl: item.hjl,
+            qty: this.quantities[index],
+            nama_satuan: item.nama_satuan
+            // total: item.hjl.replace(/\./g, '') * this.quantities[index]
+          })),
+          // subtotal: this.selectedItems.reduce((acc, item, index) => acc + (item.hjl.replace(/\./g, '') * this.quantities[index]), 0)
+        };
+        console.log('data :', this.printTransaction);
+        console.log('data transaksi:', this.printTransaction.items);
 
         Swal.fire({
           position: 'top',
@@ -305,7 +295,7 @@ export default {
           toast: true,
           width: '400px',
         }).then(() => {
-          // this.showPrint = true;
+          this.showPrint = true;
         });
 
         // console.log('data transaksi:', transactionData)

@@ -4,11 +4,9 @@
         <v-row>
           <v-col cols="12">
             <v-card class="invoice-card">
-              <v-card-title>
-              </v-card-title>
               <v-card-text ref="invoiceContent">
                 <div class="invoice-details">
-                  <p class="center-invoice-code">FAKTUR</p>
+                  <p class="center-invoice-code">BPB - BUKTI PENERIMAAN BARANG</p>
                   <p class="center-invoice-code">{{ transaction.documentNumber }}</p>
                   <div class="flex-container">
                     <!-- <p><strong>Kode Customer:</strong> {{ transaction.kodeCustomer }}</p> -->
@@ -28,26 +26,22 @@
                 <v-simple-table class="invoice-table">
                   <thead>
                     <tr>
-                    <th>Kode</th>  
+                      <th>Kode</th>  
                       <th>Nama Item</th>
-                      <th>Harga</th>
                       <th>Qty</th>
-                      <th>Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     <tr v-for="(item, index) in transaction.items" :key="index">
                         <td>{{ item.kode }}</td>  
                         <td>{{ item.nama }}</td>
-                        <td>{{ item.hjl }}</td>
                         <td>{{ item.qty }} {{ item.nama_satuan }}</td>
-                        <td>{{ item.total }}</td>
                     </tr>
                   </tbody>
                 </v-simple-table>
-                <div class="total">
+                <!-- <div class="total">
                   <strong>SubTotal:</strong> {{ priceFormat(transaction.subtotal) }}
-                </div>
+                </div> -->
               </v-card-text>
             </v-card>
           </v-col>
@@ -86,9 +80,6 @@
         }
       },
       saveTransaction() {
-        // Simpan transaksi di sini
-        // ...
-
         // Setelah menyimpan transaksi, panggil printInvoice
         this.printInvoice();
       },

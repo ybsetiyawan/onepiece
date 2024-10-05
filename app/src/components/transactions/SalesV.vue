@@ -278,7 +278,7 @@ export default {
         keterangan: this.transaction.keterangan.toUpperCase(),
         detail: this.selectedItems.map((item, index) => ({
           id_item_cabang: item.id,
-          qty: this.quantities[index],
+          qty: parseFloat(this.quantities[index]),
           harga: item.hjl.replace(/\./g, ''),
         }))
       }
@@ -301,12 +301,13 @@ export default {
             nama: item.nama,
             hjl: item.hjl,
             qty: this.quantities[index],
+            nama_satuan: item.nama_satuan,
             total: item.hjl.replace(/\./g, '') * this.quantities[index]
           })),
           subtotal: this.selectedItems.reduce((acc, item, index) => acc + (item.hjl.replace(/\./g, '') * this.quantities[index]), 0)
         };
         // console.log('data :', this.printTransaction);
-        // console.log('data transaksi:', this.printTransaction.items);
+        console.log('data transaksi:', this.printTransaction.items);
 
         Swal.fire({
           position: 'top',
