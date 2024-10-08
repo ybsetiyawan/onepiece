@@ -154,6 +154,40 @@ ORDER BY
     t.tanggal ASC;
 `;
 
+const getDailyStock = `
+SELECT 
+    c.kode AS kode_cabang,
+    c.nama AS nama_cabang,
+    i.kode AS kode_item,
+    i.nama AS nama_item,
+    s.nama AS nama_satuan,
+    j.nama AS jenis_item,
+    MAX(sh.stok_awal) AS stok_awal,  -- Assuming stok_awal is the same for all records of the same item
+    SUM(CASE WHEN sh.transtp = 'IN' THEN sh.perubahan_stok ELSE 0 END) AS total_in,
+    SUM(CASE WHEN sh.transtp = 'OUT' THEN sh.perubahan_stok ELSE 0 END) AS total_out,
+    SUM(CASE WHEN sh.transtp = 'IN' THEN sh.perubahan_stok ELSE 0 END) - SUM(CASE WHEN sh.transtp = 'OUT' THEN sh.perubahan_stok ELSE 0 END) AS stok_akhir
+FROM
+    stok_harian sh
+JOIN
+    m_item_cabang ic ON sh.id_item_cabang = ic.id
+JOIN
+    m_item i ON ic.id_item = i.id
+JOIN
+    m_cabang c ON ic.id_cabang = c.id
+JOIN
+    m_satuan s ON i.id_satuan = s.id 
+JOIN
+    m_jenis_item j ON i.id_jenis_item = j.id
+WHERE
+	c.kode = $1
+AND
+	sh.tanggal BETWEEN $2 AND $3
+GROUP BY
+    c.kode, c.nama, i.kode, i.nama, s.nama, j.nama
+ORDER BY
+    i.kode;
+`;
+
 
 
 
@@ -161,5 +195,5 @@ module.exports = {
     getUser,
     getUserLogin,
 	getItem, getItemCabang,
-	getTransIn, getTransReceipt
+	getTransIn, getTransReceipt, getDailyStock
 }

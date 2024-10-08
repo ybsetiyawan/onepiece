@@ -2,7 +2,7 @@
     <div class="sales-container">
       <div class="card">
         <div class="form-group flex-container">
-          <h2>Report Sales</h2>
+          <h2>Daily Stock</h2>
           <v-divider vertical></v-divider>
           <div>
             <label for="tanggal">Tanggal Awal:</label>
@@ -30,31 +30,32 @@
         <v-simple-table class="small-table">
           <thead class="header-container">
             <tr>
-              <th style="width: 6%;">Tanggal</th>
-              <!-- <th style="width: 14%;">Cabang</th> -->
-              <th style="width: 6.8%;">No Faktur</th>
-              <th>Kode Item</th>
-              <th style="width: 13%;">Nama Item</th>
-              <th>Hpp</th>
-              <th style="width: 9.5%;">Hjl</th>
-              <th style="width: 7.8%;">Qty</th>
-              <th>Subtotal</th>
-              <th>Uom</th>
-              <th>Jenis</th>
+              <th rowspan="2">Kode Item</th>
+              <th rowspan="2">Nama Item</th>
+              <!-- <th rowspan="2">Tanggal</th> -->
+              <th rowspan="2">Stok Awal</th>
+              <th colspan="2" class="text-center">Mutasi</th>
+              <!-- <th colspan="2">Transtp</th> -->
+              <th rowspan="2" class="text-center">Stok Akhir</th>
+            </tr>
+            <tr>
+              <th class="text-center">In</th>
+              <th class="text-center">Out</th>
+              <!-- <th>SLS</th> -->
+              <!-- <th>Receipt</th> -->
             </tr>
           </thead>
+          <v-divider/>
+
           <tbody class="cart-body">
             <tr v-for="(item, index) in item" :key="index">
-              <td style="width: 6%;">{{ dateFormat(item.tanggal) }}</td>
-              <td style="width: 7.2%;">{{ item.no_faktur }}</td>
               <td>{{ item.kode_item }}</td>
-              <td style="width: 14%;">{{ item.nama_item }}</td>
-              <td>{{ priceFormat(item.hpp) }}</td>
-              <td>{{ priceFormat(item.harga) }}</td>
-              <td style="width: 8.5%;">{{ item.qty }}</td>
-              <td>{{ priceFormat(item.subtotal) }}</td>
-              <td>{{ item.nama_satuan }}</td>
-              <td>{{ item.jenis_item }}</td>
+              <td>{{ item.nama_item }}</td>
+              <!-- <td>{{ item.tanggal }}</td> -->
+              <td >{{ item.stok_awal }}</td>
+              <td class="text-center">{{ item.total_in }}</td>
+              <td class="text-center">{{ item.total_out }}</td>
+              <td class="text-center">{{ item.stok_akhir }}</td>
             </tr>
           </tbody>
         </v-simple-table>
@@ -76,7 +77,36 @@ export default {
   mixins: [mixins],
   computed: {
     ...mapGetters(['getUserData']),
-    
+    // groupedItems() {
+    //   const grouped = {};
+    //   this.item.forEach(item => {
+    //     const key = item.kode_item; // Group by kode_item
+    //     if (!grouped[key]) {
+    //       grouped[key] = {
+    //         kode_cabang: item.kode_cabang,
+    //         nama_cabang: item.nama_cabang,
+    //         tanggal: item.tanggal,
+    //         stok_awal: item.stok_awal,
+    //         total_in: item.total_in,
+    //         total_out: item.total_out,
+    //         stok_akhir: item.stok_akhir
+    //       };
+    //     }
+    //     // Separate in and out transactions
+    //     if (item.transtp === 'in') {
+    //       grouped[key].in += item.perubahan_stok;
+    //     } else if (item.transtp === 'out') {
+    //       grouped[key].out += item.perubahan_stok;
+    //     }
+    //     // Add other transaction types if needed
+    //     if (item.transtp === 'sls') {
+    //       grouped[key].sls += item.perubahan_stok;
+    //     } else if (item.transtp === 'receipt') {
+    //       grouped[key].receipt += item.perubahan_stok;
+    //     }
+    //   });
+    //   return Object.values(grouped);
+    // }
   },
   data() {
     return {
@@ -91,9 +121,11 @@ export default {
   methods: {
     async fetchReport() {
       try {
-        console.log('Start', this.startDate)
-        console.log('End', this.endDate)
-        const response = await api.get(`/reportsales?kode_cabang=${this.user.kode_cabang}&startDate=${this.startDate}&endDate=${this.endDate}`);
+        const startDateTime = `${this.startDate}T00:00:00`;
+        const endDateTime = `${this.endDate}T23:59:59`;
+        console.log('Start', startDateTime)
+        console.log('End', endDateTime)
+        const response = await api.get(`/reportstock?kode_cabang=${this.user.kode_cabang}&startDate=${startDateTime}&endDate=${endDateTime}`);
         if (response.data.length === 0) {
 
           Swal.fire({
@@ -133,14 +165,13 @@ export default {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       const margin = 10;
-      const text1 = 'LAPORAN PENJUALAN';
+      const text1 = 'LAPORAN PERSEDIAAN BARANG';
       const text2 = `CABANG : ${this.user.kode_cabang} - ${this.user.nama_cabang}`;
       const text3 = `ALAMAT : ${this.user.alamat_cabang}`;
       const text4 = `USER : ${this.user.nama}`;
       const text5 = `PERIODE: ${this.dateFormat(this.startDate)} s/d ${this.dateFormat(this.endDate)}`;
 
       const text1Width = doc.getTextWidth(text1);
-      // const text2Width = doc.getTextWidth(text2);
       const text4Width = doc.getTextWidth(text4);
       const text5Width = doc.getTextWidth(text5);
 
@@ -156,33 +187,27 @@ export default {
       doc.text(text4, pageWidth - text4Width - (-18), 17); // Posisi keterangan di kanan
 
       const columns = [
-        { header: 'TANGGAL', dataKey: 'tanggal' },
-        { header: 'NO FAKTUR', dataKey: 'no_faktur' },
+        // { header: 'TANGGAL', dataKey: 'tanggal' },
         { header: 'KODE', dataKey: 'kode_item' },
         { header: 'NAMA', dataKey: 'nama_item' },
-        { header: 'HPP', dataKey: 'hpp' },
-        { header: 'HJL', dataKey: 'harga' },
-        { header: 'QTY', dataKey: 'qty' },
-        { header: 'SUBTOTAL', dataKey: 'subtotal' },
-        { header: 'UOM', dataKey: 'nama_satuan' },
-        { header: 'JENIS', dataKey: 'jenis_item' },
+        { header: 'STOK AWAL', dataKey: 'stok_awal' },
+        { header: 'MUTASI IN', dataKey: 'total_in' },
+        { header: 'MUTASI OUT', dataKey: 'total_out' },
+        { header: 'STOK AKHIR', dataKey: 'stok_akhir' },
       ];
 
       const rows = this.item.map(item => ({
-        tanggal: this.dateFormat(item.tanggal),
-        no_faktur: item.no_faktur,
+        // tanggal: this.dateFormat(item.tanggal),
         kode_item: item.kode_item,
         nama_item: item.nama_item,
-        hpp: this.priceFormat(item.hpp),
-        harga: this.priceFormat(item.harga),
-        qty: item.qty,
-        subtotal: this.priceFormat(item.subtotal),
-        nama_satuan: item.nama_satuan,
-        jenis_item: item.jenis_item,
+        stok_awal: item.stok_awal,
+        total_in: item.total_in,
+        total_out: item.total_out,
+        stok_akhir: item.stok_akhir,
       }));
 
       // Debugging: Log the rows array
-      console.log('Rows for PDF:', rows);
+      // console.log('Rows for PDF:', rows);
 
       // Ensure autoTable is correctly called
       doc.autoTable({
@@ -196,7 +221,7 @@ export default {
       });
       
 
-      doc.save('sales-report.pdf');
+      doc.save('stock-report.pdf');
     }
   },
   async created() {
@@ -304,7 +329,6 @@ h2{
     font-weight: bold !important; 
     color: rgb(247, 116, 116) !important;
     padding-bottom: 5px !important; /* menambahkan jarak antara header dan body table */
-
   }
 
 
@@ -337,6 +361,7 @@ h2{
 .option-button{
   margin-top: 4px;
 }
+
 
 
 /* ... existing styles ... */

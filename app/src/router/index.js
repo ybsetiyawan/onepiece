@@ -13,6 +13,7 @@ import ItemBranchV from '@/components/master/ItemBranchV.vue'
 import ReceiptV from '@/components/transactions/ReceiptV.vue'
 import SalesReport from '@/components/report/SalesReport.vue'
 import ReceiptReport from '@/components/report/ReceiptReport.vue'
+import DailyStock from '@/components/report/DailyStock.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -86,6 +87,11 @@ const routes = [
     path: '/reportreceipt',
     name: 'reportreceipt',
     component: ReceiptReport
+  },
+  {
+    path: '/reportstock',
+    name: 'reportstock',
+    component: DailyStock
   }
   
   

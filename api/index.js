@@ -75,7 +75,10 @@ app.get('/reportreceipt', async (req, res) => {
   await db.getTransReceipt(req, res)
 });
 
-
+// get all daily stock
+app.get('/reportstock', async (req, res) => {
+  await db.getDailyStock(req, res)
+});
 
 
 

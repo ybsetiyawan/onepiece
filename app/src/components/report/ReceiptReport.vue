@@ -30,30 +30,22 @@
         <v-simple-table class="small-table">
           <thead class="header-container">
             <tr>
-              <th style="width: 6%;">Tanggal</th>
-              <!-- <th style="width: 14%;">Cabang</th> -->
-              <th style="width: 6.8%;">Doc No</th>
+              <th>Tanggal</th>
+              <th>Doc No</th>
               <th>Kode Item</th>
-              <th style="width: 13%;">Nama Item</th>
-              <!-- <th>Hpp</th> -->
-              <!-- <th style="width: 9.5%;">Hjl</th> -->
-              <th style="width: 7.8%;">Qty</th>
-              <!-- <th>Subtotal</th> -->
+              <th>Nama Item</th>
+              <th>Qty</th>
               <th>Uom</th>
               <th>Jenis</th>
             </tr>
           </thead>
           <tbody class="cart-body">
             <tr v-for="(item, index) in item" :key="index">
-              <td style="width: 6%;">{{ dateFormat(item.tanggal) }}</td>
-              <!-- <td style="width: 14%;">{{ item.nama_cabang }}</td> -->
-              <td style="width: 7.2%;">{{ item.docno }}</td>
+              <td>{{ dateFormat(item.tanggal) }}</td>
+              <td>{{ item.docno }}</td>
               <td>{{ item.kode_item }}</td>
-              <td style="width: 14%;">{{ item.nama_item }}</td>
-              <!-- <td>{{ priceFormat(item.hpp) }}</td> -->
-              <!-- <td>{{ priceFormat(item.harga) }}</td> -->
-              <td style="width: 8.5%;">{{ item.qty }}</td>
-              <!-- <td>{{ priceFormat(item.subtotal) }}</td> -->
+              <td>{{ item.nama_item }}</td>
+              <td>{{ item.qty }}</td>
               <td>{{ item.nama_satuan }}</td>
               <td>{{ item.jenis_item }}</td>
             </tr>
@@ -141,7 +133,6 @@ export default {
       const text5 = `PERIODE: ${this.dateFormat(this.startDate)} s/d ${this.dateFormat(this.endDate)}`;
 
       const text1Width = doc.getTextWidth(text1);
-      // const text2Width = doc.getTextWidth(text2);
       const text4Width = doc.getTextWidth(text4);
       const text5Width = doc.getTextWidth(text5);
 
@@ -161,10 +152,7 @@ export default {
         { header: 'DOC NO', dataKey: 'docno' },
         { header: 'KODE', dataKey: 'kode_item' },
         { header: 'NAMA', dataKey: 'nama_item' },
-        // { header: 'HPP', dataKey: 'hpp' },
-        // { header: 'HJL', dataKey: 'harga' },
         { header: 'QTY', dataKey: 'qty' },
-        // { header: 'SUBTOTAL', dataKey: 'subtotal' },
         { header: 'UOM', dataKey: 'nama_satuan' },
         { header: 'JENIS', dataKey: 'jenis_item' },
       ];
@@ -174,16 +162,13 @@ export default {
         docno: item.docno,
         kode_item: item.kode_item,
         nama_item: item.nama_item,
-        // hpp: this.priceFormat(item.hpp),
-        // harga: this.priceFormat(item.harga),
         qty: item.qty,
-        // subtotal: this.priceFormat(item.subtotal),
         nama_satuan: item.nama_satuan,
         jenis_item: item.jenis_item,
       }));
 
       // Debugging: Log the rows array
-      console.log('Rows for PDF:', rows);
+      // console.log('Rows for PDF:', rows);
 
       // Ensure autoTable is correctly called
       doc.autoTable({
@@ -304,7 +289,7 @@ h2{
     font-size: 12px !important;
     font-weight: bold !important; 
     color: rgb(247, 116, 116) !important;
-
+    padding-bottom: 5px !important; /* menambahkan jarak antara header dan body table */
   }
 
 

@@ -626,6 +626,19 @@ const getTransReceipt = async (request, response) => {
     }
 };
 
+// get all daily stock
+const getDailyStock = async (request, response) => {
+    const { kode_cabang, startDate, endDate } = request.query;
+
+    try {
+        const results = await pool.query(pgqueries.getDailyStock, [kode_cabang, startDate, endDate]);
+        response.status(200).json(results.rows);
+    } catch (error) {
+        console.error('Query error:', error);
+        response.status(500).send('Internal Server Error');
+    }
+};
+
 
 
 
@@ -639,5 +652,5 @@ module.exports = {
     getItem, addItem, editItem,
     login,
     t_trans_in, getTransIn,
-    t_trans_receipt, getTransReceipt,
+    t_trans_receipt, getTransReceipt, getDailyStock
 }
