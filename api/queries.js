@@ -488,8 +488,7 @@ const t_trans_in =  async (request, response) => {
     }
 }
 
-
-
+// get all trans in
 const getTransIn = async (request, response) => {
     const { kode_cabang, startDate, endDate } = request.query;
 
@@ -503,6 +502,7 @@ const getTransIn = async (request, response) => {
 };
 
 
+// t_trans_receipt
 const t_trans_receipt =  async (request, response) => {
     try {
         const { tanggal,keterangan, detail } = request.body;
@@ -613,6 +613,20 @@ const t_trans_receipt =  async (request, response) => {
 }
 
 
+// get all trans receipt
+const getTransReceipt = async (request, response) => {
+    const { kode_cabang, startDate, endDate } = request.query;
+
+    try {
+        const results = await pool.query(pgqueries.getTransReceipt, [kode_cabang, startDate, endDate]);
+        response.status(200).json(results.rows);
+    } catch (error) {
+        console.error('Query error:', error);
+        response.status(500).send('Internal Server Error');
+    }
+};
+
+
 
 
 module.exports = {
@@ -625,5 +639,5 @@ module.exports = {
     getItem, addItem, editItem,
     login,
     t_trans_in, getTransIn,
-    t_trans_receipt,
+    t_trans_receipt, getTransReceipt,
 }

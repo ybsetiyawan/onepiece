@@ -70,7 +70,10 @@ app.post('/t_trans_receipt', async (req, res)=> {
   await db.t_trans_receipt(req, res)
 })
 
-
+// get all trans receipt
+app.get('/reportreceipt', async (req, res) => {
+  await db.getTransReceipt(req, res)
+});
 
 
 

@@ -2,7 +2,7 @@
     <div class="sales-container">
       <div class="card">
         <div class="form-group flex-container">
-          <h2>Report Sales</h2>
+          <h2>Report Receipt</h2>
           <v-divider vertical></v-divider>
           <div>
             <label for="tanggal">Tanggal Awal:</label>
@@ -32,13 +32,13 @@
             <tr>
               <th style="width: 6%;">Tanggal</th>
               <!-- <th style="width: 14%;">Cabang</th> -->
-              <th style="width: 6.8%;">No Faktur</th>
+              <th style="width: 6.8%;">Doc No</th>
               <th>Kode Item</th>
               <th style="width: 13%;">Nama Item</th>
-              <th>Hpp</th>
-              <th style="width: 9.5%;">Hjl</th>
+              <!-- <th>Hpp</th> -->
+              <!-- <th style="width: 9.5%;">Hjl</th> -->
               <th style="width: 7.8%;">Qty</th>
-              <th>Subtotal</th>
+              <!-- <th>Subtotal</th> -->
               <th>Uom</th>
               <th>Jenis</th>
             </tr>
@@ -47,13 +47,13 @@
             <tr v-for="(item, index) in item" :key="index">
               <td style="width: 6%;">{{ dateFormat(item.tanggal) }}</td>
               <!-- <td style="width: 14%;">{{ item.nama_cabang }}</td> -->
-              <td style="width: 7.2%;">{{ item.no_faktur }}</td>
+              <td style="width: 7.2%;">{{ item.docno }}</td>
               <td>{{ item.kode_item }}</td>
               <td style="width: 14%;">{{ item.nama_item }}</td>
-              <td>{{ priceFormat(item.hpp) }}</td>
-              <td>{{ priceFormat(item.harga) }}</td>
+              <!-- <td>{{ priceFormat(item.hpp) }}</td> -->
+              <!-- <td>{{ priceFormat(item.harga) }}</td> -->
               <td style="width: 8.5%;">{{ item.qty }}</td>
-              <td>{{ priceFormat(item.subtotal) }}</td>
+              <!-- <td>{{ priceFormat(item.subtotal) }}</td> -->
               <td>{{ item.nama_satuan }}</td>
               <td>{{ item.jenis_item }}</td>
             </tr>
@@ -94,7 +94,7 @@ export default {
       try {
         console.log('Start', this.startDate)
         console.log('End', this.endDate)
-        const response = await api.get(`/reportsales?kode_cabang=${this.user.kode_cabang}&startDate=${this.startDate}&endDate=${this.endDate}`);
+        const response = await api.get(`/reportreceipt?kode_cabang=${this.user.kode_cabang}&startDate=${this.startDate}&endDate=${this.endDate}`);
         if (response.data.length === 0) {
 
           Swal.fire({
@@ -134,7 +134,7 @@ export default {
       const doc = new jsPDF();
       const pageWidth = doc.internal.pageSize.getWidth();
       const margin = 10;
-      const text1 = 'LAPORAN PENJUALAN';
+      const text1 = 'LAPORAN PEMBELIAN';
       const text2 = `CABANG : ${this.user.kode_cabang} - ${this.user.nama_cabang}`;
       const text3 = `ALAMAT : ${this.user.alamat_cabang}`;
       const text4 = `USER : ${this.user.nama}`;
@@ -158,26 +158,26 @@ export default {
 
       const columns = [
         { header: 'TANGGAL', dataKey: 'tanggal' },
-        { header: 'NO FAKTUR', dataKey: 'no_faktur' },
+        { header: 'DOC NO', dataKey: 'docno' },
         { header: 'KODE', dataKey: 'kode_item' },
         { header: 'NAMA', dataKey: 'nama_item' },
-        { header: 'HPP', dataKey: 'hpp' },
-        { header: 'HJL', dataKey: 'harga' },
+        // { header: 'HPP', dataKey: 'hpp' },
+        // { header: 'HJL', dataKey: 'harga' },
         { header: 'QTY', dataKey: 'qty' },
-        { header: 'SUBTOTAL', dataKey: 'subtotal' },
+        // { header: 'SUBTOTAL', dataKey: 'subtotal' },
         { header: 'UOM', dataKey: 'nama_satuan' },
         { header: 'JENIS', dataKey: 'jenis_item' },
       ];
 
       const rows = this.item.map(item => ({
         tanggal: this.dateFormat(item.tanggal),
-        no_faktur: item.no_faktur,
+        docno: item.docno,
         kode_item: item.kode_item,
         nama_item: item.nama_item,
-        hpp: this.priceFormat(item.hpp),
-        harga: this.priceFormat(item.harga),
+        // hpp: this.priceFormat(item.hpp),
+        // harga: this.priceFormat(item.harga),
         qty: item.qty,
-        subtotal: this.priceFormat(item.subtotal),
+        // subtotal: this.priceFormat(item.subtotal),
         nama_satuan: item.nama_satuan,
         jenis_item: item.jenis_item,
       }));
@@ -197,7 +197,7 @@ export default {
       });
       
 
-      doc.save('sales-report.pdf');
+      doc.save('receipt-report.pdf');
     }
   },
   async created() {
