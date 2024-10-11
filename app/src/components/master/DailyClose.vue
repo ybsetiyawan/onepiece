@@ -8,7 +8,7 @@
         
         <div class="flex-item-button">
           <v-btn small elevation="7" class="input-field option-button" @click="dailyClose">
-            <v-icon  elevation="7" title="search">mdi-cloud-arrow-up-outline</v-icon>
+            <v-icon  elevation="7" title="Proses Daily Close">mdi-cloud-arrow-up-outline</v-icon>
           </v-btn>
         </div>
       </div>

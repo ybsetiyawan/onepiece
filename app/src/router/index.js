@@ -14,7 +14,7 @@ import ReceiptV from '@/components/transactions/ReceiptV.vue'
 import SalesReport from '@/components/report/SalesReport.vue'
 import ReceiptReport from '@/components/report/ReceiptReport.vue'
 import DailyStock from '@/components/report/DailyStock.vue'
-import AppDate from '@/components/master/AppDate.vue'
+import DailyClose from '@/components/master/DailyClose.vue'
 Vue.use(VueRouter)
 
 const routes = [
@@ -42,9 +42,9 @@ const routes = [
     component: BranchV
   },
   {
-    path: '/appdate',
-    name: 'appdate',
-    component: AppDate
+    path: '/dailyclose',
+    name: 'dailyclose',
+    component: DailyClose
   },
   {
     path: '/user',

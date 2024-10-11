@@ -253,7 +253,7 @@ export default {
         { title: 'Receipt', icon: 'mdi-trending-down', link: '/reportreceipt' },
         { title: 'Daily Stock', icon: 'mdi-book-open-page-variant-outline', link: '/reportstock' },
       ] },
-      { title: 'Daily Close', icon: 'mdi-calendar-month', link: '/appdate' },
+      { title: 'Daily Close', icon: 'mdi-calendar-month', link: '/dailyclose' },
     ],
   }
 ), 
