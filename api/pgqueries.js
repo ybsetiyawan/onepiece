@@ -27,7 +27,8 @@ const getUserLogin = `SELECT
       u.id_cabang,
 	  c.kode AS kode_cabang,
 	  c.nama AS nama_cabang,
-	  c.alamat AS alamat_cabang
+	  c.alamat AS alamat_cabang,
+	  TO_CHAR(c.app_date, 'DD Mon YYYY') AS app_date
 FROM
 	  m_user u
 JOIN m_cabang c ON u.id_cabang = c.id
@@ -37,15 +38,15 @@ WHERE u.username = $1 AND u.password = $2;
 
 const getItem = `
 SELECT
-		i.id AS id,
-		i.kode,
-		i.nama,
-		i.hpp,
-		i.hjl,
-		i.id_satuan,
-		s.nama AS nama_satuan,
-		i.id_jenis_item,
-		j.nama AS jenis_item
+	 i.id AS id,
+	 i.kode,
+	 i.nama,
+	 i.hpp,
+	 i.hjl,
+	 i.id_satuan,
+	 s.nama AS nama_satuan,
+	 i.id_jenis_item,
+	 j.nama AS jenis_item
 FROM m_item i
 JOIN m_satuan s ON i.id_satuan = s.id
 JOIN m_jenis_item j ON i.id_jenis_item = j.id
@@ -155,6 +156,18 @@ ORDER BY
 `;
 
 const getDailyStock = `
+WITH StokAwal AS (
+    SELECT 
+        ic.id AS id_item_cabang,
+        COALESCE(
+            (SELECT sh.stok_akhir 
+             FROM stok_harian sh 
+             WHERE sh.id_item_cabang = ic.id AND sh.tanggal < $2 
+             ORDER BY sh.tanggal DESC 
+             LIMIT 1), 0) AS stok_awal
+    FROM 
+        m_item_cabang ic
+)
 SELECT 
     c.kode AS kode_cabang,
     c.nama AS nama_cabang,
@@ -162,31 +175,35 @@ SELECT
     i.nama AS nama_item,
     s.nama AS nama_satuan,
     j.nama AS jenis_item,
-    MAX(sh.stok_awal) AS stok_awal,  -- Assuming stok_awal is the same for all records of the same item
+    sa.stok_awal,  -- Stok awal yang diambil dari CTE
     SUM(CASE WHEN sh.transtp = 'IN' THEN sh.perubahan_stok ELSE 0 END) AS total_in,
     SUM(CASE WHEN sh.transtp = 'OUT' THEN sh.perubahan_stok ELSE 0 END) AS total_out,
-    SUM(CASE WHEN sh.transtp = 'IN' THEN sh.perubahan_stok ELSE 0 END) - SUM(CASE WHEN sh.transtp = 'OUT' THEN sh.perubahan_stok ELSE 0 END) AS stok_akhir
-FROM
-    stok_harian sh
-JOIN
-    m_item_cabang ic ON sh.id_item_cabang = ic.id
-JOIN
+    sa.stok_awal + 
+    SUM(CASE WHEN sh.transtp = 'IN' THEN sh.perubahan_stok ELSE 0 END) - 
+    SUM(CASE WHEN sh.transtp = 'OUT' THEN sh.perubahan_stok ELSE 0 END) AS stok_akhir
+FROM 
+    m_item_cabang ic
+JOIN 
     m_item i ON ic.id_item = i.id
-JOIN
+JOIN 
     m_cabang c ON ic.id_cabang = c.id
-JOIN
+JOIN 
     m_satuan s ON i.id_satuan = s.id 
-JOIN
+JOIN 
     m_jenis_item j ON i.id_jenis_item = j.id
-WHERE
-	c.kode = $1
-AND
-	sh.tanggal BETWEEN $2 AND $3
-GROUP BY
-    c.kode, c.nama, i.kode, i.nama, s.nama, j.nama
-ORDER BY
+LEFT JOIN 
+    stok_harian sh ON sh.id_item_cabang = ic.id AND sh.tanggal BETWEEN $2 AND $3
+LEFT JOIN 
+    StokAwal sa ON sa.id_item_cabang = ic.id
+WHERE 
+    c.kode = $1
+GROUP BY 
+    c.kode, c.nama, i.kode, i.nama, s.nama, j.nama, sa.stok_awal
+ORDER BY 
     i.kode;
+
 `;
+
 
 
 
@@ -195,5 +212,6 @@ module.exports = {
     getUser,
     getUserLogin,
 	getItem, getItemCabang,
-	getTransIn, getTransReceipt, getDailyStock
+	getTransIn, getTransReceipt,
+	getDailyStock
 }

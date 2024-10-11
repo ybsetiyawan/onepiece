@@ -15,7 +15,8 @@ export default new Vuex.Store({
       nama_cabang: '',
       alamat_cabang: '',
       nama: '',
-      kode_cabang: ''
+      kode_cabang: '',
+      app_date: '',
     },
     
   },
@@ -29,6 +30,7 @@ export default new Vuex.Store({
       state.userData.alamat_cabang = payload.alamat_cabang;
       state.userData.nama = payload.nama;
       state.userData.kode_cabang = payload.kode_cabang;
+      state.userData.app_date = payload.app_date;
       localStorage.setItem('userData', JSON.stringify(state.userData));
     },
     logout(state) {
@@ -40,7 +42,8 @@ export default new Vuex.Store({
         nama_cabang: '',
         alamat_cabang: '',
         nama: '',
-        kode_cabang: ''
+        kode_cabang: '',
+        app_date: ''
 
       }
       localStorage.removeItem('userData');
@@ -59,7 +62,7 @@ export default new Vuex.Store({
     },
     setItem(state, data) {
       state.item = data; // Menyimpan data pengguna ke state
-    }
+    },
 
   },
   actions: {
@@ -101,7 +104,7 @@ export default new Vuex.Store({
       const response = await api.get('/m_item');
       const data = response.data;
       commit('setItem', data);
-    }
+    },
   },
   getters: {
     getUserData: (state) => state.userData,
@@ -112,4 +115,6 @@ export default new Vuex.Store({
     getItemTypeData: (state) => state.itemtype, // Mengembalikan data pengguna
     getItemData: (state) => state.item, // Mengembalikan data pengguna
   }
-})
+});
+
+

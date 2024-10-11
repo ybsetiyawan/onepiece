@@ -12,8 +12,7 @@
         <div class="form-group flex-container">
           <div>
             <label for="tanggal">Tanggal:</label>
-            <input type="date" id="tanggal" class="input-field" v-model="transaction.tanggal"
-              :disabled="!isButtonEnabled" />
+            <input type="date" id="tanggal" class="input-field" disabled />
           </div>
           <v-divider vertical />
           <div class="flex-item">
@@ -142,7 +141,7 @@ export default {
       return this.selectedItems.length > 0;
     },
     isSearchButtonEnabled() {
-      return this.transaction.tanggal && this.transaction.keterangan;
+      return this.transaction.keterangan;
     },
   },
   
@@ -181,6 +180,7 @@ export default {
       printTransaction: null,
       showPrint: false,
       documentNumber: '',
+      today: new Date().toISOString().split('T')[0],
     };
   },
 
@@ -274,7 +274,7 @@ export default {
       const currentTime = new Date().toTimeString().split(' ')[0];
 
       const transactionData = {
-        tanggal: `${this.transaction.tanggal}T${currentTime}`,
+        tanggal: `${this.user.app_date}T${currentTime}`,
         keterangan: this.transaction.keterangan.toUpperCase(),
         detail: this.selectedItems.map((item, index) => ({
           id_item_cabang: item.id,
@@ -290,7 +290,7 @@ export default {
 
         this.printTransaction = {
           documentNumber: this.noFaktur,
-          tanggal: this.transaction.tanggal,
+          tanggal: this.user.app_date,
           keterangan: this.transaction.keterangan,
           namaCabang: this.user.nama_cabang,
           kodeCabang: this.user.kode_cabang,

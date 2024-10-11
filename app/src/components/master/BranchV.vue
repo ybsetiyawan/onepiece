@@ -110,7 +110,7 @@ export default {
         ...mapGetters(['getCabangData','getUserData']), // Menghubungkan getter cabang dari Vuex
         userData() {
           return this.getUserData; // Mengambil data user dari store
-        }
+        },
     },
     data() {
         return {
@@ -119,6 +119,8 @@ export default {
                 { text: 'Nama', value: 'nama' },
                 { text: 'Alamat', value: 'alamat'},
                 { text: 'Telp', value: 'telp'},
+                
+
                 
             ],
             cabang: [],
@@ -132,10 +134,22 @@ export default {
     },
     methods: {
         ...mapActions(['getCabang']),
+        FormatDate(date) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(date).toLocaleDateString('id-ID', options); // Format tanggal Indonesia
+    },
         async fetchBranches() {
             await this.getCabang(); // Pastikan data diambil sebelum diassign
             this.cabang = this.getCabangData; // Mengambil data cabang dari getter
         },
+        async fetchUser() {
+      try {
+        this.user = this.getUserData;
+        console.log('user :', this.user);
+      } catch (error) {
+        console.error('Error fetching unit:', error); // Tambahkan log ini
+      }
+    },
         handleRowClick(item) {              
             this.dialog.value = true; // Menampilkan dialog saat baris diklik
             this.editCabang = { ...item }; // Mengisi data untuk diedit
@@ -203,7 +217,7 @@ export default {
               })
               this.dialog.value = false;
               setTimeout(() => {
-                location.reload();
+                // location.reload();
               }, 900);
             })
             .catch(error => {
@@ -227,7 +241,6 @@ export default {
                 });
                 return;
             }
-            // Tidak perlu memeriksa isUnique saat memperbarui
             api.put(`/m_cabang/${this.editCabang.id}`, {
               kode: this.editCabang.kode,
               nama: this.editCabang.nama.toUpperCase(),
@@ -258,7 +271,9 @@ export default {
     async created() {
         // await this.getCabang(); // Tunggu hingga data diambil
         this.fetchBranches(); // Memanggil fetchBranches setelah data diambil
-        console.log('user', this.userData); // Menampilkan data user di console
+        // this.fetchUser();
+        // console.log('user', this.userData); // Menampilkan data user di console
+        // console.log('systemDate', this.systemDate); // Menampilkan data user di console
     }
 }
 </script>

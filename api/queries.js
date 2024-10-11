@@ -11,6 +11,8 @@ const pool = new Pool({
     port: 5432,
 });
 
+
+
 const getSatuan = (request, response) => {
     pool.query('SELECT * FROM m_satuan ORDER BY id ASC', (error, results) =>{
         if (error){
@@ -122,18 +124,10 @@ const getItemCabang = (request, response) => {
 
 // }
 
-const formatDate = (date) => {
-    const pad = (n) => n < 10 ? '0' + n : n;
-    return date.getFullYear() + '-' +
-           pad(date.getMonth() + 1) + '-' +
-           pad(date.getDate()) + ' ' +
-           pad(date.getHours()) + ':' +
-           pad(date.getMinutes()) + ':' +
-           pad(date.getSeconds());
-};
+
 
 const addItemCabang = async (request, response) => {
-    const { id_item, id_cabang, stok_awal, stok_akhir } = request.body;
+    const { id_item, id_cabang, stok_awal, stok_akhir, tanggal } = request.body;
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
@@ -143,9 +137,9 @@ const addItemCabang = async (request, response) => {
         const id_item_cabang = result.rows[0].id;
 
         // insert into stok_harian
+        
         const insertStokHarianQuery = 'INSERT INTO stok_harian (tanggal, id_item_cabang, stok_awal, stok_akhir, perubahan_stok, transtp, transfrom) VALUES ($1, $2, $3, $4, $5, $6, $7)';
-        const currentDate = new Date();
-        await client.query(insertStokHarianQuery,[formatDate(currentDate), id_item_cabang, stok_awal, stok_akhir, stok_akhir - stok_awal, 'NULL', 'NULL']);
+        await client.query(insertStokHarianQuery,[tanggal, id_item_cabang, stok_awal, stok_akhir, stok_akhir - stok_awal, 'NULL', 'NULL']);
 
         await client.query('COMMIT');
         response.status(201).send('Data berhasil ditambahkan');
@@ -229,7 +223,7 @@ const addCabang = (request, response) => {
 
 const editCabang = (request, response) => {
     const { kode, nama, alamat, telp } = request.body
-    pool.query('UPDATE m_cabang SET nama = $1, alamat = $2, telp = $3 WHERE kode = $4', [nama, alamat, telp, kode], (error, results) => {
+    pool.query('UPDATE m_cabang SET nama = $1, alamat = $2, telp = $3 app_date WHERE kode = $4', [nama, alamat, telp, kode], (error, results) => {
         if (error){
             console.log(error);
             response.status(500).send('Internal Server Error');
@@ -237,6 +231,20 @@ const editCabang = (request, response) => {
         response.status(200).send('Data berhasil diubah')
      })
     }
+
+    
+
+const dailyClose = (request, response) => {
+    const { kode, app_date } = request.body
+    pool.query('UPDATE m_cabang SET app_date = $1 WHERE kode = $2', [app_date, kode], (error, results) => {
+        if (error){
+            console.log(error);
+            response.status(500).send('Internal Server Error');
+        }
+        response.status(200).send('Data berhasil diubah')
+        })
+    }
+
 
 const deleteCabang = (request, response) => {
     const id = request.params.id
@@ -365,7 +373,8 @@ const login = (request, response) => {
                     id_cabang: user.id_cabang,
                     nama_cabang: user.nama_cabang,
                     alamat_cabang: user.alamat_cabang,
-                    kode_cabang: user.kode_cabang
+                    kode_cabang: user.kode_cabang,
+                    app_date: user.app_date
                 },
             });
         } else {
@@ -642,6 +651,7 @@ const getDailyStock = async (request, response) => {
 
 
 
+
 module.exports = {
     getCabang, addCabang, editCabang, deleteCabang,
     getRole, addRole, editRole, deleteRole,
@@ -652,5 +662,7 @@ module.exports = {
     getItem, addItem, editItem,
     login,
     t_trans_in, getTransIn,
-    t_trans_receipt, getTransReceipt, getDailyStock
+    t_trans_receipt, getTransReceipt, getDailyStock,
+    dailyClose
+    
 }

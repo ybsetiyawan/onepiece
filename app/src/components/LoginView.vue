@@ -76,7 +76,8 @@ export default {
               nama: this.loginDetail.data.nama,
               id_cabang: this.loginDetail.data.id_cabang,
               user_id: this.loginDetail.data.user_id,
-              kode_cabang: this.loginDetail.data.kode_cabang
+              kode_cabang: this.loginDetail.data.kode_cabang,
+              app_date: this.loginDetail.data.app_date
             });
             Swal.fire({
               position: 'top-end',

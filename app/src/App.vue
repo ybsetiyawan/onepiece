@@ -171,7 +171,7 @@
       </span>
       <v-spacer></v-spacer>
       <span v-if="username">
-        Branch : {{ kode_cabang }} - {{ nama_cabang }} | Address : {{ alamat_cabang }}
+        App Date : {{ app_date }} | Branch : {{ kode_cabang }} - {{ nama_cabang }} | Address : {{ alamat_cabang }} 
       </span>
     </v-footer>
   </v-app>
@@ -210,6 +210,9 @@ export default {
     },
     id_role() {
       return this.getUserData.id_role; // Ambil id_role dari store
+    },
+    app_date() {
+      return this.getUserData.app_date;
     },
     // filteredItems() {
     //   // Filter items berdasarkan id_role
@@ -250,6 +253,7 @@ export default {
         { title: 'Receipt', icon: 'mdi-trending-down', link: '/reportreceipt' },
         { title: 'Daily Stock', icon: 'mdi-book-open-page-variant-outline', link: '/reportstock' },
       ] },
+      { title: 'Daily Close', icon: 'mdi-calendar-month', link: '/appdate' },
     ],
   }
 ), 
@@ -324,8 +328,9 @@ methods: {
   }
 },
 mounted() {
-  // console.log(this.getUserData)
-}
+  // console.log('user data',  this.getUserData)
+},
+
 };
 </script>
 

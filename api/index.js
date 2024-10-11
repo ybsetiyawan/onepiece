@@ -13,6 +13,7 @@ app.get('/', (req, res) => {
     });
 });
 
+
 // m_item
 app.get('/m_item', db.getItem),
 app.post('/m_item', db.addItem),
@@ -39,6 +40,9 @@ app.get('/m_cabang', db.getCabang);
 app.post('/m_cabang', db.addCabang);
 app.put('/m_cabang/:id', db.editCabang);
 app.delete('/m_cabang/:id', db.deleteCabang);
+app.put('/m_cabang/:id', db.deleteCabang);
+
+app.put('/m_cabang/dailyclose/:id', db.dailyClose);
 
 // m_role
 app.get('/m_role', db.getRole);
@@ -79,6 +83,8 @@ app.get('/reportreceipt', async (req, res) => {
 app.get('/reportstock', async (req, res) => {
   await db.getDailyStock(req, res)
 });
+
+
 
 
 

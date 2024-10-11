@@ -73,40 +73,12 @@ import 'jspdf-autotable';
 
 
 
+
 export default {
+  
   mixins: [mixins],
   computed: {
     ...mapGetters(['getUserData']),
-    // groupedItems() {
-    //   const grouped = {};
-    //   this.item.forEach(item => {
-    //     const key = item.kode_item; // Group by kode_item
-    //     if (!grouped[key]) {
-    //       grouped[key] = {
-    //         kode_cabang: item.kode_cabang,
-    //         nama_cabang: item.nama_cabang,
-    //         tanggal: item.tanggal,
-    //         stok_awal: item.stok_awal,
-    //         total_in: item.total_in,
-    //         total_out: item.total_out,
-    //         stok_akhir: item.stok_akhir
-    //       };
-    //     }
-    //     // Separate in and out transactions
-    //     if (item.transtp === 'in') {
-    //       grouped[key].in += item.perubahan_stok;
-    //     } else if (item.transtp === 'out') {
-    //       grouped[key].out += item.perubahan_stok;
-    //     }
-    //     // Add other transaction types if needed
-    //     if (item.transtp === 'sls') {
-    //       grouped[key].sls += item.perubahan_stok;
-    //     } else if (item.transtp === 'receipt') {
-    //       grouped[key].receipt += item.perubahan_stok;
-    //     }
-    //   });
-    //   return Object.values(grouped);
-    // }
   },
   data() {
     return {
@@ -123,8 +95,6 @@ export default {
       try {
         const startDateTime = `${this.startDate}T00:00:00`;
         const endDateTime = `${this.endDate}T23:59:59`;
-        console.log('Start', startDateTime)
-        console.log('End', endDateTime)
         const response = await api.get(`/reportstock?kode_cabang=${this.user.kode_cabang}&startDate=${startDateTime}&endDate=${endDateTime}`);
         if (response.data.length === 0) {
 
@@ -155,7 +125,7 @@ export default {
     async fetchUser() {
       try {
         this.user = this.getUserData;
-        console.log('user :', this.user);
+        // console.log('user :', this.user);
       } catch (error) {
         console.error('Error fetching unit:', error); // Tambahkan log ini
       }

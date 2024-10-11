@@ -136,7 +136,7 @@ export default {
                 { text: 'Harga Jual', value: 'hjl'},
                 { text: 'Satuan', value: 'nama_satuan'},
                 { text: 'Item Type', value: 'jenis_item'},
-                { text: 'Stok Awal', value: 'stok_awal' },
+                // { text: 'Stok Awal', value: 'stok_awal' },
                 { text: 'Stok Akhir', value: 'stok_akhir'},
             ],
             item: [],
@@ -177,7 +177,7 @@ export default {
         async fetchUser() {
           try {
             this.user = this.getUserData;
-            // console.log('user :', this.user); // Tambahkan log ini
+            console.log('user :', this.user); // Tambahkan log ini
           } catch (error) {
             console.error('Error fetching unit:', error); // Tambahkan log ini
           }
@@ -237,11 +237,21 @@ export default {
               });
               return;
             }
+            const currentTime = new Date().toTimeString().split(' ')[0];
+            // console.log({
+            //   id_item: this.edit.kode,
+            //   stok_awal: 0,
+            //   stok_akhir: 0,
+            //   id_cabang: this.idCabang,
+            //   tanggal: `${this.user.app_date}T${currentTime}`,
+            // })
             await api.post('/m_item_cabang', {
               id_item: this.edit.kode,
               stok_awal: 0,
               stok_akhir: 0,
               id_cabang: this.idCabang,
+              tanggal: `${this.user.app_date}T${currentTime}`,
+              
             })
             .then(() => {
               Swal.fire({
