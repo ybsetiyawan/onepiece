@@ -9,7 +9,7 @@
           <v-card-text>
               <v-data-table
                   :headers="headers"
-                  :items="cabang"
+                  :items="formattedCabang"
                   :search="search"
                   @click:row="handleRowClick"
               />
@@ -111,6 +111,12 @@ export default {
         userData() {
           return this.getUserData; // Mengambil data user dari store
         },
+        formattedCabang() {
+            return this.cabang.map(branch => ({
+                ...branch,
+                formattedAppDate: this.formatAppDate(branch.app_date) // Format the app_date
+            }));
+        },
     },
     data() {
         return {
@@ -119,6 +125,7 @@ export default {
                 { text: 'Nama', value: 'nama' },
                 { text: 'Alamat', value: 'alamat'},
                 { text: 'Telp', value: 'telp'},
+                { text: 'App Date', value: 'formattedAppDate'},
                 
 
                 
@@ -135,8 +142,8 @@ export default {
     methods: {
         ...mapActions(['getCabang']),
         FormatDate(date) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(date).toLocaleDateString('id-ID', options); // Format tanggal Indonesia
+        const options = { year: 'numeric', month: 'short', day: 'numeric' };
+        return new Date(date).toLocaleDateString('id-ID', options).replace('.', '');// Format tanggal Indonesia
     },
         async fetchBranches() {
             await this.getCabang(); // Pastikan data diambil sebelum diassign
@@ -266,6 +273,10 @@ export default {
               alert('Update Failed' + error)
             })
             // Tambahkan logika untuk menyimpan perubahan ke Vuex atau API
+        },
+        formatAppDate(date) {
+            const options = { day: 'numeric', month: 'short', year: 'numeric' };
+            return new Date(date).toLocaleDateString('id-ID', options).replace('.', '');
         },
     },
     async created() {

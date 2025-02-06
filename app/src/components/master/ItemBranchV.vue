@@ -218,6 +218,7 @@ export default {
             // this.edit = {
             //     nama: '',
             // };
+            
             this.isAdd = true;
         },
         async save() {

@@ -257,13 +257,13 @@ export default {
     ],
   }
 ), 
-methods: {
-  ...mapActions(['logout']),
-  onUserLoggedIn() {
-  },
-  logout() {
-    this.$store.dispatch('logout');
-  },
+  methods: {
+    ...mapActions(['logout']),
+    onUserLoggedIn() {
+    },
+    logout() {
+      this.$store.dispatch('logout');
+    },
   updateUser(){
     if(!this.editUser.password || !this.editUser.nama ){
       Swal.fire({
